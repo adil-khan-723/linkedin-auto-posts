@@ -72,7 +72,7 @@ Check output for "Posted successfully. ID: ..." confirmation. If you see ERROR, 
 
 ## Step 9: Token Expiry Check
 
-Read `data/run_log.json`. Find the most recent entry with `"success": true` and check its `"posted_at"` date. If it was more than 53 days ago (60-day token - 7-day warning), append this warning to `data/run_log.json` runs:
+Read `data/run_log.json`. Find the most recent entry with `"success": true` and check its `"date"` field. If it was more than 53 days ago (60-day token - 7-day warning), append this warning to `data/run_log.json` runs:
 
 ```json
 {
