@@ -40,13 +40,16 @@ def test_post_to_linkedin_sends_correct_payload():
 
     assert post_id == "post_789"
     payload = mock_post.call_args[1]["json"]
+    headers = mock_post.call_args[1]["headers"]
     assert payload["author"] == "urn:li:person:person123"
     assert (
         payload["specificContent"]["com.linkedin.ugc.ShareContent"]["shareCommentary"]["text"]
         == "Test post text"
     )
+    assert payload["specificContent"]["com.linkedin.ugc.ShareContent"]["shareMediaCategory"] == "NONE"
     assert payload["lifecycleState"] == "PUBLISHED"
     assert payload["visibility"]["com.linkedin.ugc.MemberNetworkVisibility"] == "PUBLIC"
+    assert headers["X-Restli-Protocol-Version"] == "2.0.0"
 
 
 def test_log_and_update_on_success(tmp_path, monkeypatch):
