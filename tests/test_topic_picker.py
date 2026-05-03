@@ -95,5 +95,5 @@ def test_pick_topic_output_has_required_fields(tmp_path, monkeypatch):
     topic_picker.pick_topic()
 
     result = json.loads(output.read_text())
-    for field in ["topic", "angle", "source", "selected_at"]:
+    for field in ["topic", "angle", "repo", "source", "selected_at"]:
         assert field in result, f"Missing field: {field}"
