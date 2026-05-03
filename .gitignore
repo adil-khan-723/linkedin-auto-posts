@@ -1,0 +1,5 @@
+.env
+data/.linkedin_person_id
+__pycache__/
+*.pyc
+.pytest_cache/
