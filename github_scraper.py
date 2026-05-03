@@ -7,6 +7,7 @@ from datetime import datetime
 GITHUB_USERNAME = "adil-khan-723"
 GITHUB_API = "https://api.github.com"
 OUTPUT_FILE = "data/scraped_data.json"
+README_MAX_CHARS = 3000
 
 DEVOPS_REPOS = [
     "cicd-ai-copilot",
@@ -42,7 +43,7 @@ def fetch_repo_data(repo_name):
     if readme_resp.status_code == 200:
         readme = base64.b64decode(readme_resp.json()["content"]).decode(
             "utf-8", errors="ignore"
-        )[:3000]
+        )[:README_MAX_CHARS]
 
     commits = []
     commits_resp = requests.get(
