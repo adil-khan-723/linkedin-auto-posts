@@ -4,6 +4,16 @@ Run this pipeline every scheduled trigger. Follow steps in order. Do not skip an
 
 ---
 
+## Step 0: Setup
+
+```bash
+pip install -r requirements-prod.txt
+```
+
+Wait for install to complete before continuing.
+
+---
+
 ## Step 1: Scrape GitHub
 
 ```bash
@@ -83,4 +93,18 @@ Read `data/run_log.json`. Find the most recent entry with `"success": true` and 
   "post_id": null,
   "error": "WARNING: LinkedIn access token expires in less than 7 days. Regenerate at https://developer.linkedin.com and update .env"
 }
+```
+
+---
+
+## Step 10: Save State to GitHub
+
+Push updated state files so run history and posted topics are persisted:
+
+```bash
+git config user.email "bot@linkedin-auto-posts"
+git config user.name "LinkedIn Bot"
+git add data/run_log.json data/posted_topics.json
+git commit -m "chore: update run state [skip ci]" || echo "nothing to commit"
+git push
 ```
