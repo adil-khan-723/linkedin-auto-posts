@@ -64,7 +64,12 @@ def post_to_linkedin(text, token, person_id):
         },
         json=payload,
     )
-    resp.raise_for_status()
+    if not resp.ok:
+        raise RuntimeError(
+            f"LinkedIn POST {resp.status_code}: {resp.text} | "
+            f"x-li-uuid={resp.headers.get('x-li-uuid')} "
+            f"x-li-route-key={resp.headers.get('x-li-route-key')}"
+        )
     return resp.headers.get("x-restli-id", "unknown")
 
 
