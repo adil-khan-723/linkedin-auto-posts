@@ -62,6 +62,13 @@
       "repo": "slim-vs-alpine",
       "post_id": "urn:li:share:7457174749689896960",
       "posted_at": "2026-05-04T21:10:08.510679"
+    },
+    {
+      "topic": "terraform_project2_refactored: Terraform project that provisions multiple EC2 instances behind an AWS Application Load Balancer. Uses remote state with S3 and DynamoDB locking, dynamic instance creation and subnet distribution, security group\u2013based traffic flow, and user data\u2013driven Nginx bootstrapping for load-balancing validation.",
+      "source": "github",
+      "repo": "terraform_project2_refactored",
+      "post_id": "urn:li:share:7457181789917384704",
+      "posted_at": "2026-05-04T21:38:07.192698"
     }
   ]
 }

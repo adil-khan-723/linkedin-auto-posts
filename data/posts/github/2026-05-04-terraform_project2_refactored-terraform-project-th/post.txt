@@ -1,0 +1,7 @@
+Just spent an hour refactoring how we document subnet assignment in our Terraform setup, and I'm realizing how easy it is to let README examples drift from actual behavior. We had this dynamic subnet distribution logic that was working fine in production, but the example we showed in the docs was this simplified version that glossed over the actual `cidrsubnet()` calculation we're doing.
+
+Someone on the team tried to follow the README example verbatim and got subnet overlap warnings. Not a breaking change, but it made me wonder how many people hit that same friction and just moved on without saying anything.
+
+While I was in there cleaning things up anyway, I nuked the license badge that nobody was looking at and fixed a LinkedIn link that kept breaking in certain markdown renderers. Small stuff, but it bugged me that our docs weren't matching reality.
+
+What I'm still figuring out is where the line is between "documentation needs to be production-accurate" and "examples should be simplified for clarity." Right now I'm leaning toward accurate-first, but I keep second-guessing whether that makes the docs harder to learn from. How do you handle that balance in your projects?
