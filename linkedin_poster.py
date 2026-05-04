@@ -24,6 +24,9 @@ def get_access_token():
 
 
 def get_person_id(token):
+    if os.environ.get("LINKEDIN_PERSON_ID"):
+        return os.environ["LINKEDIN_PERSON_ID"]
+
     if os.path.exists(PERSON_ID_FILE):
         with open(PERSON_ID_FILE) as f:
             return f.read().strip()
