@@ -1,6 +1,7 @@
 import json
 import os
 import datetime
+from datetime import timedelta, datetime as _dt
 
 SCRAPED_FILE = "data/scraped_data.json"
 POSTED_FILE = "data/posted_topics.json"
@@ -68,6 +69,9 @@ def load_json(path, default):
         return default
 
 
+REPO_COOLDOWN_DAYS = 28  # same repo not reused within 4 weeks
+
+
 def extract_repo_topics(repos):
     return [
         {
@@ -81,28 +85,44 @@ def extract_repo_topics(repos):
     ]
 
 
+def _repos_on_cooldown(posted_entries, now):
+    """Return set of repo names posted within the last REPO_COOLDOWN_DAYS."""
+    cutoff = now - timedelta(days=REPO_COOLDOWN_DAYS)
+    on_cooldown = set()
+    for entry in posted_entries:
+        repo = entry.get("repo")
+        posted_at = entry.get("posted_at")
+        if not repo or not posted_at:
+            continue
+        try:
+            when = _dt.fromisoformat(posted_at)
+        except ValueError:
+            continue
+        if when >= cutoff:
+            on_cooldown.add(repo)
+    return on_cooldown
+
+
 def pick_topic():
     scraped = load_json(SCRAPED_FILE, {"repos": []})
     posted = load_json(POSTED_FILE, {"posted": []})
 
-    used = {p["topic"] for p in posted.get("posted", [])}
+    now = datetime.datetime.utcnow()
+    used_self = {p["topic"] for p in posted.get("posted", []) if not p.get("repo")}
 
     # Monday (weekday 0) = GitHub repo topic; Wed/Fri = self-generated
-    is_monday = datetime.datetime.utcnow().weekday() == 0
+    is_monday = now.weekday() == 0
 
     if is_monday:
+        cooldown = _repos_on_cooldown(posted.get("posted", []), now)
         candidates = extract_repo_topics(scraped["repos"])
-        unused_github = [t for t in candidates if t["topic"] not in used]
-        if unused_github:
-            selected = {**unused_github[0], "source": "github"}
-        else:
-            # All GitHub topics exhausted — fall back to self-generated
-            unused_self = [t for t in SELF_GENERATED_TOPICS if t["topic"] not in used]
-            if not unused_self:
-                unused_self = SELF_GENERATED_TOPICS
-            selected = {**unused_self[0], "source": "self-generated"}
+        available = [t for t in candidates if t["repo"] not in cooldown]
+        if not available:
+            # All repos on cooldown — pick least-recently-used
+            available = candidates
+        selected = {**available[0], "source": "github"}
     else:
-        unused_self = [t for t in SELF_GENERATED_TOPICS if t["topic"] not in used]
+        unused_self = [t for t in SELF_GENERATED_TOPICS if t["topic"] not in used_self]
         if not unused_self:
             unused_self = SELF_GENERATED_TOPICS
         selected = {**unused_self[0], "source": "self-generated"}
