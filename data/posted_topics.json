@@ -41,6 +41,13 @@
       "repo": "kubernetes-sample-voting-app-project-tls",
       "post_id": "urn:li:share:7457156578656321537",
       "posted_at": "2026-05-04T19:57:56.001151"
+    },
+    {
+      "topic": "Docker layer caching breaks when COPY order is wrong",
+      "source": "self-generated",
+      "repo": null,
+      "post_id": "urn:li:share:7457161828578598913",
+      "posted_at": "2026-05-04T20:18:47.790614"
     }
   ]
 }
