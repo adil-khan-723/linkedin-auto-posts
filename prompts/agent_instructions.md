@@ -103,6 +103,36 @@ Check output for "Posted successfully. ID: ..." confirmation. If you see ERROR, 
 
 ---
 
+## Step 9.5: Archive Post
+
+Read `data/selected_topic.json` to get `topic`, `angle`, `source`, `repo`.
+
+1. Create a slug from the topic: lowercase, replace spaces and special chars with hyphens, max 50 chars.
+2. Get current UTC timestamp in ISO 8601 format (e.g. `2026-05-05T04:30:00Z`).
+3. Determine the archive directory:
+   - If `source` is `"github"` → `data/posts/github/YYYY-MM-DD-<slug>/`
+   - If `source` is `"self-generated"` → `data/posts/self-generated/YYYY-MM-DD-<slug>/`
+4. Create that directory and write these files:
+
+**post.txt** — the exact final approved post text, verbatim.
+
+**meta.json** — write exactly this structure:
+```json
+{
+  "topic": "<topic from selected_topic.json>",
+  "angle": "<angle from selected_topic.json>",
+  "source": "<source>",
+  "repo": "<repo or null>",
+  "linkedin_id": "<post ID from Step 9, e.g. urn:li:share:...>",
+  "posted_at": "<UTC ISO timestamp>",
+  "created_at": "<UTC ISO timestamp of this archive write>"
+}
+```
+
+**diagram.png** — if `data/diagram.png` exists, copy it into the archive directory. If it doesn't exist, skip silently.
+
+---
+
 ## Step 10: Token Expiry Check
 
 Read `data/run_log.json`. Find the most recent entry with `"success": true` and check its `"date"` field. If it was more than 53 days ago (60-day token - 7-day warning), append this warning to `data/run_log.json` runs:
@@ -133,7 +163,7 @@ if [ -n "$GITHUB_TOKEN" ]; then
   git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/adil-khan-723/linkedin-auto-posts.git"
 fi
 
-git add data/run_log.json data/posted_topics.json
+git add data/run_log.json data/posted_topics.json data/posts/
 git commit -m "chore: update run state [skip ci]" || echo "nothing to commit"
 
 if ! git push 2>&1; then
