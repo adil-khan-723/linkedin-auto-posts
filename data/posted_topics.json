@@ -69,6 +69,13 @@
       "repo": "terraform_project2_refactored",
       "post_id": "urn:li:share:7457181789917384704",
       "posted_at": "2026-05-04T21:38:07.192698"
+    },
+    {
+      "topic": "terraform-project2-moudlarized: modularized the project 2 which was in non modular style to bring in the reusability ",
+      "source": "github",
+      "repo": "terraform-project2-moudlarized",
+      "post_id": "urn:li:share:7457182733614669824",
+      "posted_at": "2026-05-04T21:41:52.199185"
     }
   ]
 }

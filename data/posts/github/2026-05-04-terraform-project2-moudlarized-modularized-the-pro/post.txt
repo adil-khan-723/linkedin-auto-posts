@@ -1,0 +1,7 @@
+I spent the last few weeks untangling a Terraform setup that had grown into this monolithic mess. Everything lived in root modules, state files scattered across environments, zero reusability. I started pulling things apart into proper modules for compute, networking, and databases. The README was embarrassingly bare too, just a few commands and "good luck."
+
+What surprised me wasn't how much cleaner the structure became, but how many small decisions I had to make along the way. Should the networking module expose every subnet ID or just the VPC ID? Too granular and you're creating brittle dependencies. Too abstract and you're hiding what's actually being provisioned.
+
+The README refresh forced me to think harder about this. Adding AWS service icons and clearer formatting meant I had to explain why certain modules existed, what assumptions they made, what you could and couldn't configure. That's where the real design problems surfaced. I'd modularized things in a way that made sense to me at the time, but documenting it revealed some weird boundaries.
+
+Now modules are genuinely reusable across projects. I've already copied the compute and database ones into another stack. But I'm still wrestling with the networking module. There's always some edge case in a new environment that makes me think "should I have parameterized this differently?" I wonder if that feeling goes away or if it's just part of the job.
