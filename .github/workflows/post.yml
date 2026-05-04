@@ -1,0 +1,44 @@
+name: LinkedIn Post Pipeline
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Monday 2:30pm IST (09:00 UTC)
+    - cron: '0 9 * * 3'  # Wednesday 2:30pm IST
+    - cron: '0 9 * * 5'  # Friday 2:30pm IST
+  workflow_dispatch:      # manual trigger
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements-prod.txt anthropic
+
+      - name: Run pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_CLIENT_ID: ${{ secrets.LINKEDIN_CLIENT_ID }}
+          LINKEDIN_PERSON_ID: kdloWK9rIy
+        run: python pipeline.py
+
+      - name: Commit and push state
+        run: |
+          git config user.email "bot@linkedin-auto-posts"
+          git config user.name "LinkedIn Bot"
+          git add data/run_log.json data/posted_topics.json data/posts/ || true
+          git commit -m "chore: update run state [skip ci]" || echo "nothing to commit"
+          git push
