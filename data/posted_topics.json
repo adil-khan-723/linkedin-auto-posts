@@ -1,3 +1,11 @@
 {
-  "posted": []
+  "posted": [
+    {
+      "topic": "cicd-ai-copilot: AI-powered CI/CD failure analyzer and pipeline copilot \u2014 deterministic tool verification + LLM analysis + human-in-the-loop Slack approval for Jenkins and GitHub Actions",
+      "source": "github",
+      "repo": "cicd-ai-copilot",
+      "post_id": "urn:li:share:7457008491824738304",
+      "posted_at": "2026-05-04T10:09:29.226095"
+    }
+  ]
 }
