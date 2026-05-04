@@ -118,9 +118,15 @@ def pick_topic():
         candidates = extract_repo_topics(scraped["repos"])
         available = [t for t in candidates if t["repo"] not in cooldown]
         if not available:
-            # All repos on cooldown — pick least-recently-used
             available = candidates
-        selected = {**available[0], "source": "github"}
+        if available:
+            selected = {**available[0], "source": "github"}
+        else:
+            # No GitHub repos available — fall through to self-generated
+            unused_self = [t for t in SELF_GENERATED_TOPICS if t["topic"] not in used_self]
+            if not unused_self:
+                unused_self = SELF_GENERATED_TOPICS
+            selected = {**unused_self[0], "source": "self-generated"}
     else:
         unused_self = [t for t in SELF_GENERATED_TOPICS if t["topic"] not in used_self]
         if not unused_self:
