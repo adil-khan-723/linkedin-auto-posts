@@ -13,6 +13,20 @@
       "repo": "iacguard",
       "post_id": "urn:li:share:7457075960673124352",
       "posted_at": "2026-05-04T14:37:35.567508"
+    },
+    {
+      "topic": "k8s-observability-stack: End-to-end Kubernetes monitoring pipeline with Prometheus and Grafana \u2014 custom Flask metrics, ServiceMonitor, PromQL dashboards, and real debugging under load.",
+      "source": "github",
+      "repo": "k8s-observability-stack",
+      "post_id": "urn:li:share:7457098466843058176",
+      "posted_at": "2026-05-04T16:07:01.134943"
+    },
+    {
+      "topic": "Why Kubernetes readiness and liveness probes are not interchangeable",
+      "source": "self-generated",
+      "repo": null,
+      "post_id": "urn:li:share:7457099801424482304",
+      "posted_at": "2026-05-04T16:12:19.545918"
     }
   ]
 }
