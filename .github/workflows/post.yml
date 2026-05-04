@@ -2,9 +2,9 @@ name: LinkedIn Post Pipeline
 
 on:
   schedule:
-    - cron: '0 9 * * 1'  # Monday 2:30pm IST (09:00 UTC)
-    - cron: '0 9 * * 3'  # Wednesday 2:30pm IST
-    - cron: '0 9 * * 5'  # Friday 2:30pm IST
+    - cron: '30 4 * * 1'  # Monday 10:00am IST (04:30 UTC)
+    - cron: '30 4 * * 3'  # Wednesday 10:00am IST
+    - cron: '30 4 * * 5'  # Friday 10:00am IST
   workflow_dispatch:      # manual trigger
 
 jobs:
