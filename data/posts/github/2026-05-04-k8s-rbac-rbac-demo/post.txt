@@ -1,0 +1,7 @@
+Something bit me this week that I thought I had figured out years ago: Kubernetes RBAC.
+
+We had a new service account that needed read access to pods in one namespace. Simple enough. I added the Role, created the RoleBinding, applied it. Ran a quick test. Access denied. Spent an embarrassing amount of time verifying the Role was correct before I thought to check which namespace the RoleBinding was actually created in. Wrong namespace. Classic.
+
+The thing that gets me is how quiet RBAC failures are. No "you bound this to the wrong namespace." Just access denied, go figure it out. I ended up pulling together a small demo to make sense of it, roles, bindings, service accounts, and how namespace scope affects each one, mostly so I'd stop second-guessing myself every time I saw a 403.
+
+What I still don't fully have wired: how to get visibility into what a given service account can actually do at runtime without running auth can-i queries by hand for every resource combination. There's a whole observability angle here that feels like it should be solved but every tool I've tried has some catch. Still looking.
