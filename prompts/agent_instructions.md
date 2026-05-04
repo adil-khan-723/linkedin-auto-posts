@@ -58,7 +58,20 @@ Read `prompts/quality_criteria.md`. Evaluate your humanized post against every c
 
 - If **PASS**: continue to Step 7.
 - If **REJECT**: note the reason, rewrite the post (return to Step 4 with the rejection reason in mind). Track retry count.
-- After **3 consecutive REJECT results**: write failure to `data/run_log.json` with `"success": false` and `"error": "quality gate failed after 3 retries"`, then stop.
+- After **3 consecutive REJECT results**: write failure entry to `data/run_log.json` (append to runs array):
+
+```json
+{
+  "date": "<today ISO>",
+  "topic": "<selected topic>",
+  "source": "<source>",
+  "success": false,
+  "post_id": null,
+  "error": "quality gate failed after 3 retries"
+}
+```
+
+Then **skip Steps 7-9** and **go directly to Step 10** (so the failure is persisted).
 
 ---
 
@@ -104,7 +117,22 @@ Push updated state files so run history and posted topics are persisted:
 ```bash
 git config user.email "bot@linkedin-auto-posts"
 git config user.name "LinkedIn Bot"
+
+# Embed token in remote URL so push has auth
+if [ -n "$GITHUB_TOKEN" ]; then
+  git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/adil-khan-723/linkedin-auto-posts.git"
+fi
+
 git add data/run_log.json data/posted_topics.json
 git commit -m "chore: update run state [skip ci]" || echo "nothing to commit"
-git push
+
+if ! git push 2>&1; then
+  echo "=== GIT PUSH FAILED — dumping state to logs ==="
+  echo "--- data/run_log.json ---"
+  cat data/run_log.json 2>/dev/null || echo "(missing)"
+  echo "--- data/posted_topics.json ---"
+  cat data/posted_topics.json 2>/dev/null || echo "(missing)"
+fi
 ```
+
+`GITHUB_TOKEN` must be present in `.env` (set in the routine prompt). If push fails, state contents dumped to CCR logs as fallback.
