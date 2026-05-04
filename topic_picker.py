@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import datetime
+import datetime
 
 SCRAPED_FILE = "data/scraped_data.json"
 POSTED_FILE = "data/posted_topics.json"
@@ -87,11 +87,20 @@ def pick_topic():
 
     used = {p["topic"] for p in posted.get("posted", [])}
 
-    candidates = extract_repo_topics(scraped["repos"])
-    unused_github = [t for t in candidates if t["topic"] not in used]
+    # Monday (weekday 0) = GitHub repo topic; Wed/Fri = self-generated
+    is_monday = datetime.datetime.utcnow().weekday() == 0
 
-    if unused_github:
-        selected = {**unused_github[0], "source": "github"}
+    if is_monday:
+        candidates = extract_repo_topics(scraped["repos"])
+        unused_github = [t for t in candidates if t["topic"] not in used]
+        if unused_github:
+            selected = {**unused_github[0], "source": "github"}
+        else:
+            # All GitHub topics exhausted — fall back to self-generated
+            unused_self = [t for t in SELF_GENERATED_TOPICS if t["topic"] not in used]
+            if not unused_self:
+                unused_self = SELF_GENERATED_TOPICS
+            selected = {**unused_self[0], "source": "self-generated"}
     else:
         unused_self = [t for t in SELF_GENERATED_TOPICS if t["topic"] not in used]
         if not unused_self:
@@ -103,7 +112,7 @@ def pick_topic():
         "angle": selected["angle"],
         "repo": selected.get("repo"),
         "source": selected["source"],
-        "selected_at": datetime.utcnow().isoformat(),
+        "selected_at": datetime.datetime.utcnow().isoformat(),
     }
 
     os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
