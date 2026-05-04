@@ -1,7 +1,0 @@
-{
-  "topic": "cicd-ai-copilot: AI-powered CI/CD failure analyzer and pipeline copilot \u2014 deterministic tool verification + LLM analysis + human-in-the-loop Slack approval for Jenkins and GitHub Actions",
-  "angle": "commits: docs: add Mermaid architecture diagram to README, test: add coverage for validators, jobs_handler, profiles_store, setup_handler, fix(chat): scrub checkout scm from streaming chat responses",
-  "repo": "cicd-ai-copilot",
-  "source": "github",
-  "selected_at": "2026-05-04T09:51:25.374279"
-}
