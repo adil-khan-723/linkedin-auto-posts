@@ -6,6 +6,13 @@
       "repo": "cicd-ai-copilot",
       "post_id": "urn:li:share:7457008491824738304",
       "posted_at": "2026-05-04T10:09:29.226095"
+    },
+    {
+      "topic": "iacguard: Terraform pre-apply risk and blast radius analyzer",
+      "source": "github",
+      "repo": "iacguard",
+      "post_id": "urn:li:share:7457075960673124352",
+      "posted_at": "2026-05-04T14:37:35.567508"
     }
   ]
 }
