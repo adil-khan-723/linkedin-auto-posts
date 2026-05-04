@@ -1,4 +1,10 @@
 data/.linkedin_person_id
+data/scraped_data.json
+data/selected_topic.json
+data/approved_post.txt
+data/diagram.mmd
+data/diagram.png
+logs/
 __pycache__/
 *.pyc
 .pytest_cache/
