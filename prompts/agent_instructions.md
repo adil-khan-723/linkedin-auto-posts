@@ -71,11 +71,21 @@ Read `prompts/quality_criteria.md`. Evaluate your humanized post against every c
 }
 ```
 
-Then **skip Steps 7-9** and **go directly to Step 10** (so the failure is persisted).
+Then **skip Steps 7-10** and **go directly to Step 11** (so the failure is persisted).
 
 ---
 
-## Step 7: Post to LinkedIn
+## Step 7: Generate Diagram
+
+```bash
+python mermaid_generator.py
+```
+
+This may print "skipping diagram" — that's fine, continue. If it prints "Diagram saved: data/diagram.png", the poster will auto-attach it.
+
+---
+
+## Step 8: Post to LinkedIn
 
 Run with the exact approved post text:
 
@@ -87,13 +97,13 @@ Replace `APPROVED POST TEXT HERE` with the full post content. Keep all punctuati
 
 ---
 
-## Step 8: Confirm
+## Step 9: Confirm
 
 Check output for "Posted successfully. ID: ..." confirmation. If you see ERROR, check `data/run_log.json` for details.
 
 ---
 
-## Step 9: Token Expiry Check
+## Step 10: Token Expiry Check
 
 Read `data/run_log.json`. Find the most recent entry with `"success": true` and check its `"date"` field. If it was more than 53 days ago (60-day token - 7-day warning), append this warning to `data/run_log.json` runs:
 
@@ -110,7 +120,7 @@ Read `data/run_log.json`. Find the most recent entry with `"success": true` and 
 
 ---
 
-## Step 10: Save State to GitHub
+## Step 11: Save State to GitHub
 
 Push updated state files so run history and posted topics are persisted:
 

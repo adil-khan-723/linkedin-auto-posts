@@ -3,6 +3,7 @@ import sys
 import json
 import requests
 from datetime import datetime
+from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,6 +13,7 @@ POSTED_FILE = "data/posted_topics.json"
 RUN_LOG_FILE = "data/run_log.json"
 SELECTED_TOPIC_FILE = "data/selected_topic.json"
 PERSON_ID_FILE = "data/.linkedin_person_id"
+DIAGRAM_PNG = "data/diagram.png"
 
 
 def get_access_token():
@@ -40,19 +42,46 @@ def get_person_id(token):
     return person_id
 
 
+def _try_upload_diagram(token, person_id):
+    if not Path(DIAGRAM_PNG).exists():
+        return None
+    try:
+        from linkedin_image_uploader import upload_image
+        asset_urn = upload_image(token, person_id, DIAGRAM_PNG)
+        print(f"Diagram uploaded: {asset_urn}")
+        return asset_urn
+    except Exception as e:
+        print(f"Diagram upload failed (posting text only): {e}")
+        return None
+
+
 def post_to_linkedin(text, token, person_id):
+    asset_urn = _try_upload_diagram(token, person_id)
+
+    if asset_urn:
+        content = {
+            "shareCommentary": {"text": text},
+            "shareMediaCategory": "IMAGE",
+            "media": [
+                {
+                    "status": "READY",
+                    "description": {"text": "Architecture diagram"},
+                    "media": asset_urn,
+                    "title": {"text": "Diagram"},
+                }
+            ],
+        }
+    else:
+        content = {
+            "shareCommentary": {"text": text},
+            "shareMediaCategory": "NONE",
+        }
+
     payload = {
         "author": f"urn:li:person:{person_id}",
         "lifecycleState": "PUBLISHED",
-        "specificContent": {
-            "com.linkedin.ugc.ShareContent": {
-                "shareCommentary": {"text": text},
-                "shareMediaCategory": "NONE",
-            }
-        },
-        "visibility": {
-            "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
-        },
+        "specificContent": {"com.linkedin.ugc.ShareContent": content},
+        "visibility": {"com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"},
     }
 
     resp = requests.post(
