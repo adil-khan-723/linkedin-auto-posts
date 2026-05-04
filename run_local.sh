@@ -9,9 +9,9 @@ cd "$(dirname "$0")"
 
 LOG_DIR="$HOME/Posts/logs"
 mkdir -p "$LOG_DIR"
-LOG_FILE="$LOG_DIR/run-$(date -u +%Y%m%dT%H%M%SZ).log"
+LOG_FILE="$LOG_DIR/run-$(TZ='Asia/Kolkata' date +%Y%m%dT%H%M%SIST).log"
 
-log() { echo "[$(date -u +%H:%M:%SZ)] $*" | tee -a "$LOG_FILE"; }
+log() { echo "[$(TZ='Asia/Kolkata' date +%H:%M:%S)] IST $*" | tee -a "$LOG_FILE"; }
 
 log "=== START ==="
 
