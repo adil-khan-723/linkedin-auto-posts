@@ -1,0 +1,7 @@
+Spent three hours yesterday debugging why a pod kept getting OOM killed on what should've been a well-resourced node. The node had plenty of memory available, the pod's requests looked reasonable, and nothing in my monitoring screamed "you're out of space." Classic setup for feeling completely lost.
+
+Finally pulled the node details and realized the pod's limit was set way lower than what it was actually consuming during peak load. Requests and limits aren't the same thing. I know this intellectually, but I'd apparently been treating them like they were in my head. Requests are what the scheduler uses to pack pods onto nodes. Limits are the hard ceiling. The kernel will kill your process if it goes over the limit, even if the node itself has gigabytes sitting idle.
+
+So there I was: my scheduler saw 4GB available and said "sure, this pod can fit," but the pod's limit was 2GB, and under load it was trying to use 3GB. Kaboom.
+
+What I'm still confused about: we've got some services where I genuinely can't tell what the working set actually is. Peak load, normal load, during garbage collection — the numbers jump around enough that setting a limit feels like guesswork. Do most people just add a buffer and call it a day, or is there a smarter way to figure out what the actual ceiling should be?

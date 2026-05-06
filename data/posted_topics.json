@@ -76,6 +76,13 @@
       "repo": "terraform-project2-moudlarized",
       "post_id": "urn:li:share:7457182733614669824",
       "posted_at": "2026-05-04T21:41:52.199185"
+    },
+    {
+      "topic": "Kubernetes resource requests vs limits \u2014 not the same thing",
+      "source": "self-generated",
+      "repo": null,
+      "post_id": "urn:li:share:7457689408738328576",
+      "posted_at": "2026-05-06T07:15:13.000684"
     }
   ]
 }
