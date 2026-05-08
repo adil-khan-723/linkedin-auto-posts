@@ -1,0 +1,9 @@
+I copied the same Jenkinsfile across eight different repositories before someone asked me why I wasn't using a shared library. I remember thinking, why would I add another layer of abstraction when I could just ctrl+c, ctrl+v?
+
+Turns out, that was the wrong question. The issue hit me when I had to update how we build Docker images across all eight pipelines. Eight files to change. Eight places to mess up. Eight code reviews.
+
+So I finally extracted a shared library. I moved the common build, test, and push steps into a groovy file in a central repo. Then I imported it with `@Library` and suddenly all eight Jenkinsfiles became five lines each. Just calling the function, passing parameters.
+
+But here's what still bugs me: the debugging. When something breaks in the shared library, the stack trace is noisier. I'm jumping between repos, and I can't just dump `println` statements everywhere like I used to. The local testing loop feels clunky too. You have to commit to a branch, update the reference, and run the full pipeline to see if your groovy syntax is even valid.
+
+It's absolutely the right move for eight identical pipelines. I'm still figuring out the workflow for developing and testing library changes without turning every fix into a multi-step production deploy. There's probably a better way I haven't found yet.
