@@ -1,0 +1,9 @@
+Just pushed a two-service setup (Orders + Inventory microservices) running on Docker Compose and I'm still wrapping my head around why the health checks matter more than I initially thought.
+
+Built it with Flask, pretty straightforward. Each service has its own container, they talk to each other over the internal Docker network. The README's there, everything runs. But here's what got me: I had the services communicating fine without health checks, so I almost shipped it that way. Then during a restart test, the Orders service tried hitting Inventory before it was actually ready to accept connections. The container was *running*, but the app inside wasn't.
+
+That's when I added the health checks. Simple HTTP endpoint, returns 200 when the service is genuinely ready. Compose respects that now—won't mark the container as healthy until it actually responds. Seems obvious in retrospect, but I'd glossed over it because "it works locally" has burned me before.
+
+What I'm still figuring out: the threshold settings. How aggressive should the checks be? Timeout, interval, retries—I basically copied defaults and it's working, but I don't fully understand the tradeoffs yet. In production, is this even sufficient, or am I missing something about readiness versus liveness checks?
+
+The code's up if anyone wants to poke around. Curious if others handle this differently.

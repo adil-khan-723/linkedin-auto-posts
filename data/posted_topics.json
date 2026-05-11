@@ -90,6 +90,13 @@
       "repo": null,
       "post_id": "urn:li:share:7458399426152120320",
       "posted_at": "2026-05-08T06:16:33.813686"
+    },
+    {
+      "topic": "microservices: \u2022  Description: Minimal Flask microservices demo (Orders + Inventory) using Docker Compose with health checks, internal DNS, and end-to-end examples. \u2022  Topics: docker, docker-compose, flask, microservices, rest-api, python, examples, networking, healthcheck",
+      "source": "github",
+      "repo": "microservices",
+      "post_id": "urn:li:share:7459512633881255936",
+      "posted_at": "2026-05-11T08:00:03.726054"
     }
   ]
 }
