@@ -1,0 +1,11 @@
+Spent the last two days debugging why a service runs fine on my machine and in Docker locally, then crashes instantly in our Kubernetes cluster. Same image, same config, completely different behavior.
+
+Turns out the Alpine image I'm using ships with musl libc, not glibc. One of our dependencies is a closed-source library we can't modify, and it was compiled against glibc. It works fine when you're building on a glibc system because the build tools mask the incompatibility. But at runtime in the container, musl doesn't provide the same syscall signatures for certain operations.
+
+The error was this vague segfault that showed up once and then the pod restarted. No logs, no warning. Just dead.
+
+I switched to Debian slim and it stopped crashing immediately. Performance is basically the same. Size went from 30MB to 120MB—not ideal, but runtime stability wins.
+
+What's frustrating is this isn't really discoverable without either running the exact production environment locally (which I wasn't) or knowing ahead of time that this specific library has musl issues (which I didn't). The Docker build succeeded. Everything looked fine.
+
+Now I'm wondering how many other binary dependencies in our stack have silent musl incompatibilities that we just haven't hit yet. Anyone else dealing with this, or is it just a matter of time before we find the next one?
