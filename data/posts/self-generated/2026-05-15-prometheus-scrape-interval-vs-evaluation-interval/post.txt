@@ -1,0 +1,11 @@
+Spent two hours yesterday chasing a phantom latency issue in our alerts. A CPU spike was clearly visible in Prometheus, but the alert rule wasn't firing until 10+ minutes after the spike appeared in the graph. I kept adjusting thresholds, re-reading the query, blaming the exporter.
+
+Turns out I'd been looking at the wrong dials the entire time.
+
+I had `scrape_interval` set to 15 seconds globally, which felt aggressive enough. But `evaluation_interval` was still at the default 1 minute. That's the actual heartbeat for rule evaluation. Prometheus scrapes fresh data every 15 seconds, but only *checks* if alerts should fire once per minute. So even if my threshold breached right after a scrape, it could sit there for up to 59 seconds before the rule engine even looked at it.
+
+Once I dropped evaluation_interval to 15 seconds to match scrape_interval, the alert latency collapsed to acceptable levels.
+
+The weird part? I *knew* these were separate knobs conceptually. But operationally, I'd never bumped into the gap between them because most of our rules were tuned for slower detection anyway. Felt like I should've caught this during onboarding, not at 2 AM staring at a Grafana dashboard.
+
+I'm still not sure if there's a hard rule for keeping them aligned or if it depends on the use case.
