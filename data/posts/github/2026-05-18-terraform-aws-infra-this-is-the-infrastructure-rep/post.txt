@@ -1,0 +1,7 @@
+Spent yesterday untangling a mess of reverts in our infrastructure repo and honestly, it's making me question how we're approaching changes in Terraform. Three commits got deleted in quick succession: the internal ALB URL in the frontend task definition, IAM role changes for state locking, and some dummy tf vars. Each one probably made sense when it went in.
+
+What got me was the state locking reversal. We'd pushed changes to let the backend handle concurrent state access properly, and then yanked it all out. I don't even know if it was a blocker or just "let's roll this back and reassess." That's the part that stung — no comment, no PR note, just gone.
+
+The real issue I'm sitting with: we're not capturing *why* these reversions happened. Was it a broken deployment? A misunderstanding about what the changes actually did? Someone got nervous and hit eject?
+
+When you're working with infrastructure-as-code, especially something as stateful and unforgiving as Terraform, reverting without context leaves the next person (sometimes me, an hour later) with no idea if those changes were fundamentally wrong or just poorly timed. I'm still figuring out how to enforce better commit discipline around this without slowing everything down. Right now we're just leaving technical debt notes and moving on.
