@@ -2,9 +2,8 @@ name: LinkedIn Post Pipeline
 
 on:
   schedule:
-    - cron: '30 4 * * 1'  # Monday 10:00am IST (04:30 UTC)
-    - cron: '30 4 * * 3'  # Wednesday 10:00am IST
-    - cron: '30 4 * * 5'  # Friday 10:00am IST
+    - cron: '30 4 * * 1'  # Monday 10:00am IST (04:30 UTC) — GitHub repo topic
+    - cron: '30 4 * * 5'  # Friday 10:00am IST — self-generated topic
   workflow_dispatch:      # manual trigger
 
 jobs:

@@ -110,7 +110,7 @@ def pick_topic():
     now = datetime.datetime.utcnow()
     used_self = {p["topic"] for p in posted.get("posted", []) if not p.get("repo")}
 
-    # Monday (weekday 0) = GitHub repo topic; Wed/Fri = self-generated
+    # Monday (weekday 0) = GitHub repo topic; Friday (weekday 4) = self-generated
     is_monday = now.weekday() == 0
 
     if is_monday:

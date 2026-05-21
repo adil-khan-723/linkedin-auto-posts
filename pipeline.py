@@ -9,6 +9,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -27,8 +28,18 @@ def ask(prompt, system=None):
     kwargs = {"model": MODEL, "max_tokens": 2048, "messages": [{"role": "user", "content": prompt}]}
     if system:
         kwargs["system"] = system
-    response = client.messages.create(**kwargs)
-    return response.content[0].text.strip()
+    for attempt in range(5):
+        try:
+            response = client.messages.create(**kwargs)
+            return response.content[0].text.strip()
+        except anthropic.APIStatusError as e:
+            if e.status_code == 529:
+                wait = 30 * (attempt + 1)
+                log(f"API overloaded (529), retrying in {wait}s (attempt {attempt + 1}/5)")
+                time.sleep(wait)
+            else:
+                raise
+    raise RuntimeError("API overloaded after 5 retries")
 
 
 def read_file(path):
