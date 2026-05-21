@@ -118,6 +118,13 @@
       "repo": "terraform-aws-infra",
       "post_id": "urn:li:share:7462057095203401729",
       "posted_at": "2026-05-18T08:30:50.140790"
+    },
+    {
+      "topic": "Terraform depends_on when implicit dependencies aren't enough",
+      "source": "self-generated",
+      "repo": null,
+      "post_id": "urn:li:share:7463145305262202880",
+      "posted_at": "2026-05-21T08:35:00.035787"
     }
   ]
 }

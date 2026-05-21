@@ -1,0 +1,9 @@
+Spent three hours last week chasing a race condition that only showed up every few deployments. We're provisioning an RDS instance and then immediately creating a parameter group, and terraform plan looks fine—it knows the database has to come first. But apply? Every fourth or fifth run, the parameter group would fail to associate because the instance wasn't fully ready yet.
+
+The thing is, terraform knows about the explicit dependency. It *should* wait. But "ready" and "created" aren't the same thing, apparently. The RDS instance exists in AWS before all its internals are actually available for modifications.
+
+I threw `depends_on` at it. Not the implicit dependency from the resource reference—an explicit one, spelled out. And it stopped happening. I still don't fully understand *why* the implicit dependency wasn't enough though. The parameter group resource literally references the database instance in its configuration, so terraform sees that relationship.
+
+My guess is there's some timing window between when AWS reports "instance created" and when it actually accepts API calls against that instance, and sometimes terraform's working fast enough that it sends both requests before the RDS backend finishes warming up. But that feels like I'm guessing.
+
+Anyone else hit this with RDS or other managed services? Is this a known thing where implicit dependencies genuinely aren't sufficient, or did I just have a weird edge case?
