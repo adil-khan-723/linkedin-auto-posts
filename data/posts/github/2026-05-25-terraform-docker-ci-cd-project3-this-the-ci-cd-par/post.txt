@@ -1,0 +1,9 @@
+Spent way too long yesterday chasing a ghost in our CI pipeline. We're using separate Terraform files for CI and CD stages, and I added some debug output to see what was actually being passed between them. Just `terraform output` to grab values from the apply stage, then pipe them to the next job.
+
+Except the debug steps weren't printing anything. The pipeline was green, but the outputs stayed silent. Turned out the CD file wasn't reading the artifacts from CI properly. The state files were there, but Terraform wasn't finding them in the expected path during the CD stage.
+
+I added explicit logging to see exactly what directory we were running from, what files existed, and what Terraform was seeing. That's when it clicked—the working directory context was different between stages. The CI file was writing outputs to one place, the CD file was looking in another. Classic path mismatch.
+
+I fixed it by being explicit about state file locations in both configurations, but now I'm wondering if there's a cleaner way to handle this without hardcoding paths everywhere. We're already doing this across multiple projects, so the debug steps are staying in for now. I might refactor this into a shared module later, but right now I just need the pipeline consistent.
+
+Anyone else running separate CI/CD Terraform files? How are you managing state file handoff between stages?
