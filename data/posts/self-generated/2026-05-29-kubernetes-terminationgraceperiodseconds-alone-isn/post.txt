@@ -1,0 +1,11 @@
+Spent the last two days chasing 502 errors during rolling deploys that made zero sense. Pod was marked as ready, traffic was flowing, then suddenly a handful of requests would fail right as the old pod was shutting down.
+
+I had terminationGracePeriodSeconds set to 30 seconds, which felt generous. Figured that was enough time for existing connections to drain. Wrong.
+
+The issue was timing. When Kubernetes sends the SIGTERM signal, it doesn't wait for the load balancer to actually stop sending traffic. There's a window, usually a few hundred milliseconds or longer, where requests are still routing to a pod that's already starting its shutdown sequence. The app closes the listener, rejects new connections, and boom: 502.
+
+Added a preStop hook with a 5-second sleep before the app starts gracefully shutting down. That sleep gives the load balancer time to notice the pod is terminating, update its endpoint list, and drain traffic. Combined with the 30-second terminationGracePeriodSeconds, it's been solid.
+
+But I'm still not 100% confident in the 5-second number. It depends on your load balancer's refresh interval, network latency, and how fast your app shuts down gracefully. I chose it semi-arbitrarily based on some blog posts.
+
+Has anyone landed on a more reliable way to handle this gap between SIGTERM and actual traffic draining? Or are you all just tuning these values until it stops breaking?

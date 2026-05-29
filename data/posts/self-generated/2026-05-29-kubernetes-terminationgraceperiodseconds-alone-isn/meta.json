@@ -1,0 +1,9 @@
+{
+  "topic": "Kubernetes terminationGracePeriodSeconds alone isn't enough for zero-downtime deploys",
+  "angle": "still getting 502s on rolling deploy until I added preStop sleep",
+  "source": "self-generated",
+  "repo": null,
+  "linkedin_id": "urn:li:share:7466041766585155584",
+  "posted_at": "2026-05-29T08:24:30.274140+00:00",
+  "created_at": "2026-05-29T08:24:30.274140+00:00"
+}

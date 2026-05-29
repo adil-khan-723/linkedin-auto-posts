@@ -132,6 +132,13 @@
       "repo": "terraform-docker-ci-cd-project3",
       "post_id": "urn:li:share:7464597312959348736",
       "posted_at": "2026-05-25T08:44:45.698254"
+    },
+    {
+      "topic": "Kubernetes terminationGracePeriodSeconds alone isn't enough for zero-downtime deploys",
+      "source": "self-generated",
+      "repo": null,
+      "post_id": "urn:li:share:7466041766585155584",
+      "posted_at": "2026-05-29T08:24:30.254898"
     }
   ]
 }

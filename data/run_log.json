@@ -247,6 +247,22 @@
       "success": true,
       "post_id": "urn:li:share:7464597312959348736",
       "error": null
+    },
+    {
+      "date": "2026-05-29T08:24:30.255355",
+      "topic": "Kubernetes terminationGracePeriodSeconds alone isn't enough for zero-downtime deploys",
+      "source": "self-generated",
+      "success": true,
+      "post_id": "urn:li:share:7466041766585155584",
+      "error": null
+    },
+    {
+      "date": "2026-05-29T08:24:30.274140+00:00",
+      "topic": "Kubernetes terminationGracePeriodSeconds alone isn't enough for zero-downtime deploys",
+      "source": "self-generated",
+      "success": true,
+      "post_id": "urn:li:share:7466041766585155584",
+      "error": null
     }
   ]
 }
