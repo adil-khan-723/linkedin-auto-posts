@@ -1,0 +1,7 @@
+Just spent the last hour untangling why my voting app pods kept restarting randomly in the cluster. Turned out I had liveness probes set to check /health on port 8080, but the actual service was responding on 8000. Classic case of copy-pasting probe configs without actually verifying them against the real app.
+
+What surprised me was how the deployment strategy mattered here. I'd thrown in a RollingUpdate with maxUnavailable set to 0, which meant Kubernetes tried to spin up new pods before killing old ones. With my probe misconfiguration, it created this weird cascade where containers would crash, get restarted, crash again. The strategy itself wasn't the problem, but it exposed the probe issue faster than a Recreate strategy would have.
+
+After fixing the port mismatch and reorganizing my manifest structure by separating deployments, services, and ingress configs into their own files, the whole thing stabilized. Now I'm actually seeing clean rolling updates where traffic shifts gracefully between pod generations.
+
+But I'm still not 100% confident about my readiness probe thresholds. I set failureThreshold to 3, but I honestly don't know if that's conservative enough for a voting app where state matters. Do you tweak these values based on actual app behavior, or just stick with defaults and hope for the best?
