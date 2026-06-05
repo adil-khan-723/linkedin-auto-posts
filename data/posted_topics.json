@@ -146,6 +146,13 @@
       "repo": "kubernetes-sample-voting-app-project1",
       "post_id": "urn:li:share:7467147980354240512",
       "posted_at": "2026-06-01T09:40:11.745077"
+    },
+    {
+      "topic": "EKS node groups vs managed node groups \u2014 what actually changes",
+      "source": "self-generated",
+      "repo": null,
+      "post_id": "urn:li:share:7468579926816858112",
+      "posted_at": "2026-06-05T08:30:14.874910"
     }
   ]
 }

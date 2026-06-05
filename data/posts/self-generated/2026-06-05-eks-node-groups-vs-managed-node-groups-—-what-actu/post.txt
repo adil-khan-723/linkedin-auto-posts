@@ -1,0 +1,7 @@
+Just realized I've been treating EKS node groups and managed node groups as interchangeable when they're not.
+
+Hit this the hard way last week. We had a cluster running on regular node groups, and I assumed the auto-patching would work the same way as managed node groups. Spoiler: it doesn't. Spent a morning debugging why our AMI updates weren't rolling through automatically, only to find out managed node groups handle OS patching on their own schedule, but regular node groups? You're orchestrating that yourself or accepting whatever the initial AMI had.
+
+The weird part is how easy it is to miss this distinction when you're just standing up clusters and they mostly work. Both show up in the console, both let you scale, both work with the cluster. But the operational burden is different. With managed node groups, AWS handles the patching and version upgrades, giving you some control over the window and strategy. With regular node groups, that's on you. You could use Launch Templates, you could use something like Karpenter, or you could just not update them for six months if you're not paying attention.
+
+I'm still figuring out whether we should migrate everything to managed node groups or if there's a reason I'm missing to keep the flexibility of regular ones. What are others actually running in production, and have you hit similar surprises?
