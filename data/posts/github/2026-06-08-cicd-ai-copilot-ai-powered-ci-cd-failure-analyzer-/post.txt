@@ -1,0 +1,7 @@
+Been running a Jenkins setup with the auto-webhook stuff from the recent updates, and I'm hitting something that's making me rethink how I think about "reliability" in CI/CD tooling.
+
+The Notification Plugin works fine most of the time. Clean payloads, quick delivery. Then randomly, a build failure doesn't surface. Not a timeout issue, not a permission problem. The plugin just doesn't fire. So the fallback poller kicks in, picks it up 30 seconds later. That's when I realized the setup actually works because of the redundancy, not despite it.
+
+But now I'm sitting with this gnawing question: how do you know when a fallback is masking a real problem versus when it's legitimately saving you? The webhook fails silently enough that you might never notice if you're not watching the logs. Add an LLM layer on top trying to parse these failures and suggest fixes, and you're trusting analysis on data that might be incomplete or delayed.
+
+The one-click setup got the basics wired up fast, but I'm still manually verifying the payload structure and digging into logs when something feels off. I want to trust the automation more than I actually do right now. Still figuring out where that trust threshold should be.

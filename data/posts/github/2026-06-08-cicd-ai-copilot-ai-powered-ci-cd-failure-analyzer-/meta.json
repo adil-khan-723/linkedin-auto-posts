@@ -1,0 +1,9 @@
+{
+  "topic": "cicd-ai-copilot: AI-powered CI/CD failure analyzer and pipeline copilot \u2014 deterministic tool verification + LLM analysis + human-in-the-loop Slack approval for Jenkins and GitHub Actions",
+  "angle": "commits: docs+feat: comprehensive docs update + auto-Jenkins-setup on profile activate (#54), feat(jenkins): one-click auto-setup for Notification Plugin webhook (#53), fix(webhook): add Jenkins failure poller as fallback for unreliable Notification Plugin (#52)",
+  "source": "github",
+  "repo": "cicd-ai-copilot",
+  "linkedin_id": "urn:li:share:7469677499245846529",
+  "posted_at": "2026-06-08T09:11:36.103917+00:00",
+  "created_at": "2026-06-08T09:11:36.103917+00:00"
+}

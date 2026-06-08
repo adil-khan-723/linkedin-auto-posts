@@ -295,6 +295,22 @@
       "success": true,
       "post_id": "urn:li:share:7468579926816858112",
       "error": null
+    },
+    {
+      "date": "2026-06-08T09:11:36.084037",
+      "topic": "cicd-ai-copilot: AI-powered CI/CD failure analyzer and pipeline copilot \u2014 deterministic tool verification + LLM analysis + human-in-the-loop Slack approval for Jenkins and GitHub Actions",
+      "source": "github",
+      "success": true,
+      "post_id": "urn:li:share:7469677499245846529",
+      "error": null
+    },
+    {
+      "date": "2026-06-08T09:11:36.103917+00:00",
+      "topic": "cicd-ai-copilot: AI-powered CI/CD failure analyzer and pipeline copilot \u2014 deterministic tool verification + LLM analysis + human-in-the-loop Slack approval for Jenkins and GitHub Actions",
+      "source": "github",
+      "success": true,
+      "post_id": "urn:li:share:7469677499245846529",
+      "error": null
     }
   ]
 }
