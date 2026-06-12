@@ -1,0 +1,9 @@
+Spent the last hour debugging why our app kept getting restarted during deployments. The pod would start up fine, but after a few seconds Kubernetes would kill it and spin up a new one. Over and over.
+
+Turns out I'd copied the liveness probe config from another service and reused it everywhere. Same HTTP endpoint, same 5-second timeout. Worked fine for that other app because it was ready almost instantly. But this one? It needs a solid 30 seconds to hydrate its cache from Redis before it can actually handle requests.
+
+Here's what was happening: the liveness probe started firing before the readiness probe had even marked the pod as ready. The pod wasn't dead, it was just slow to start. But the liveness probe saw timeouts and killed it. Then a fresh pod would start, hit the exact same wall, and get killed too. This created a cascade of restarts.
+
+The fix was straightforward: readiness probe with the longer timeout on the cache hydration, liveness probe only checking something lightweight that works immediately. Readiness tells you "are you ready to take traffic?" Liveness tells you "are you still alive?"
+
+But I'm still not 100% sure what the right timeout is for each in a service that does weird initialization. Anyone else running into this? How are you setting the initial delay and timeout values?
