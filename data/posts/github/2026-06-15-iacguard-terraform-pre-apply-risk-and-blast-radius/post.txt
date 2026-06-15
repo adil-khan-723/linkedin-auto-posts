@@ -1,0 +1,7 @@
+Spent the last few days actually using IACGuard in a real pipeline, and I keep hitting the same wall: the tool tells me *what* changed in my Terraform plan, but I'm still manually parsing the blast radius myself.
+
+Set it up to catch risky resource modifications before apply. It flags deletions, security group changes, and database updates. Good. But when it surfaced that my plan was touching 47 resources across three environments, I realized the tool just stops there. It doesn't tell me which ones actually matter or how they're connected. I'm staring at a list of IAM policy changes and compute instances and trying to figure out if this is genuinely dangerous or if I'm being paranoid.
+
+The README makes it sound like it'll reduce my pre-apply anxiety. Maybe it will eventually, but right now I'm still doing the mental work to understand dependencies and blast radius. IACGuard made the output cleaner, which is useful. At least I'm not reading raw plan diffs anymore.
+
+What I'm still figuring out: how do you actually *quantify* blast radius without embedding business logic into a tool? Different teams would define risk totally differently. Should IACGuard handle that, or does it stay on us as operators?
