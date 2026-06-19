@@ -1,0 +1,9 @@
+Spent an hour yesterday debugging why a pod kept getting restarted right after it came up. The app was fine, logs showed no errors, but kubelet was terminating it anyway.
+
+Turned out the liveness probe was firing before the app had even finished initializing. We'd set the same 5-second threshold on both readiness and liveness, which seemed efficient at the time. The readiness probe kept the pod out of the load balancer until it was ready. But the liveness probe was also checking the same health endpoint at 5 seconds, and since the app needed a full 8 seconds to warm up its database connections, liveness saw a non-200 response and killed the whole thing.
+
+The weird part: the pod would restart, hit the same problem, restart again. It looked like a cascading failure when really it was just the wrong probe doing the wrong job.
+
+Readiness asks "can you handle traffic now?" Liveness asks "are you still alive?" They're totally different questions. The liveness probe shouldn't care about startup time. It should only check if the process is hung. I moved liveness to check a simpler endpoint and added an initialDelaySeconds buffer to give the startup sequence room to breathe.
+
+Still not 100% sure where the line should be on that initial delay, though. How long is too long to wait before checking if something's actually dead?
