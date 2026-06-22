@@ -1,0 +1,9 @@
+Spent yesterday chasing down why our Prometheus scrape interval kept drifting under load. We're running a Flask app with custom metrics, scraping every 30s via ServiceMonitor, and the dashboards looked fine until traffic spiked. Then gaps everywhere.
+
+Turns out the issue wasn't Prometheus itself. Our Flask app dropped metrics during garbage collection. We had `process_gc_collections_total` firing but not the actual business metrics we cared about. The ServiceMonitor was working perfectly, but there was nothing to scrape half the time.
+
+What got me was how invisible this was. Prometheus happily recorded whatever came back, Grafana filled the blanks with interpolation, and everything looked smooth. I only caught it because I was staring at the raw scrape output and noticed the timestamps clustering.
+
+Fixed it by adjusting our Flask metrics decorator to use a background thread instead of blocking on the request. But I'm still not confident we've got it right. We're seeing maybe 2-3% dropped samples now instead of 15%, but I can't tell if that's acceptable or if we need a completely different approach to metrics collection under load.
+
+Anyone else deal with metrics loss in custom instrumentation? Wondering if we should be pushing metrics instead of scraping, or if there's a pattern I'm missing with how Flask handles concurrent metric writes.
