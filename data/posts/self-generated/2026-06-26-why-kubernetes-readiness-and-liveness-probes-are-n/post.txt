@@ -1,0 +1,9 @@
+Spent the last hour debugging why a perfectly healthy service kept getting terminated. Turned out I'd copy-pasted the same probe config for both liveness and readiness, and it was killing pods that were still warming up.
+
+The service needs about 45 seconds to initialize its database connections. I'd set a liveness probe with a 30-second initialDelaySeconds, thinking that would give it enough time. But the readiness probe was using the same threshold. The liveness probe doesn't care if you're ready to serve traffic—it just checks if the process is alive. Readiness decides whether Kubernetes should send requests to you.
+
+I didn't fully understand until this blew up in staging: I had readiness failing on the same condition as liveness. So the pod would start, hit that 30-second mark while still initializing, fail the readiness check, get pulled from the load balancer, then immediately fail the liveness check and get restarted. The logs looked like the service was crashing, but it was actually just never getting a fair shot.
+
+The fix was obvious in hindsight: give readiness a longer grace period and a more forgiving threshold than liveness. Liveness should be "is this thing completely broken." Readiness should be "are you actually ready to work."
+
+I'm still wrestling with what the right thresholds should be for services with variable startup times though.

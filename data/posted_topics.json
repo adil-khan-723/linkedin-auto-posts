@@ -188,6 +188,13 @@
       "repo": "k8s-observability-stack",
       "post_id": "urn:li:share:7474768214514622464",
       "posted_at": "2026-06-22T10:20:17.187517"
+    },
+    {
+      "topic": "Why Kubernetes readiness and liveness probes are not interchangeable",
+      "source": "self-generated",
+      "repo": null,
+      "post_id": "urn:li:share:7476184406311776256",
+      "posted_at": "2026-06-26T08:07:43.573704"
     }
   ]
 }
