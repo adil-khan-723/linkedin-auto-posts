@@ -1,0 +1,9 @@
+Spent the last hour debugging why my voting app kept dropping connections during a rolling update. Turns out I'd added a PodDisruptionBudget but never actually tested what happens when Kubernetes evicts pods mid-request.
+
+The real kicker: I'd changed the postgres port in the deployment but forgot to update it in the service definition. So the PDB was working exactly as intended—gracefully draining connections—but half those connections were failing anyway because the app couldn't reach the database on the old port. Looked like a networking issue. Wasn't.
+
+While fixing that, I realized my label selectors had drifted too. Changed some labels on the voting deployment weeks ago but the service was still pointing at the old ones. Everything technically "worked" because I had enough replicas that some pods matched both old and new labels, so I never caught it until I started stress-testing the disruption budget.
+
+Now I'm wondering how many of my other services have this kind of silent mismatch. The port thing is obvious in hindsight—should've caught it in code review—but the label drift is gnawing at me. There's no easy way to audit this across all my deployments, and manual checking doesn't scale.
+
+Has anyone built tooling to validate these kinds of implicit dependencies in their cluster, or do you just catch them the hard way like I did?
