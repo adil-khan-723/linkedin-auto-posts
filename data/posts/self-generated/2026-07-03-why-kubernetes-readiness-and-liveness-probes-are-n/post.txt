@@ -1,0 +1,11 @@
+Deployed a new service last week and watched it get hammered by restarts for the first two minutes. Liveness probe kept failing, the controller kept killing the pod, and I sat there thinking the probe logic looked fine.
+
+Turned out I'd set both readiness and liveness to the same threshold, checking if the app could respond within 2 seconds. Except this particular service needs about 90 seconds to warm up its cache on startup. So the pod started, the liveness probe failed immediately, kubelet restarted it, and the cycle repeated. It never got a chance to actually initialize.
+
+The readiness probe should've been the gatekeeper saying "not ready to take traffic yet." The liveness probe should've just checked "is this thing still alive?" Two different jobs, and I'd merged them into one.
+
+I bumped readiness to 120 seconds with a higher failure threshold and kept liveness aggressive. The pod booted cleanly this time. Readiness failed for a bit, the service stayed off the load balancer, then became ready once the cache loaded. No restarts.
+
+What threw me is how silently this fails. The pod logs looked normal. The application was fine. But the orchestration layer was working against itself because I didn't think through what each probe actually needed to do.
+
+I'm still not 100% sure I have the math right on failure counts versus timeouts though. Anyone else found a good mental model for tuning these without just guessing?
