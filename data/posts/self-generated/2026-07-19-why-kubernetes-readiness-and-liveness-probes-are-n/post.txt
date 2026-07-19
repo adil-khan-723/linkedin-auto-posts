@@ -1,0 +1,9 @@
+Deployed a service last week and watched it get killed repeatedly during startup. The pod would spin up, liveness probe would fire immediately, see it wasn't responding yet, and kubelet would restart it. Rinse, repeat. I'd set the same probe logic for both liveness and readiness.
+
+They're doing completely different jobs. Readiness asks "can this pod handle traffic right now?" Liveness asks "is this pod still alive or is it in some broken state I can't recover from?" I was treating them identically, which meant the second my service took longer than expected to initialize, Kubernetes thought it was dead and started killing it.
+
+My startup sequence was legitimately slow. Loading data, warming caches, connecting to dependencies—that's fine. That's not a crash. But my liveness probe had no patience for it, and neither did the default initialDelaySeconds of 0.
+
+I added proper initialDelaySeconds to the liveness probe and tuned the readiness probe to actually check readiness. I added healthier endpoints and graceful degradation checks. Separate concerns, separate configs.
+
+Still not entirely sure what the right threshold should be for initialDelaySeconds in different scenarios. Is there a way to make it adaptive, or do most people just trial-and-error this until it stops restarting?
