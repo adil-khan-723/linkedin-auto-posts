@@ -4,6 +4,12 @@ from unittest.mock import patch, MagicMock
 import linkedin_poster
 
 
+def test_get_access_token_delegates_to_linkedin_auth():
+    with patch("linkedin_poster.linkedin_auth.get_access_token", return_value="tok") as m:
+        assert linkedin_poster.get_access_token() == "tok"
+    m.assert_called_once()
+
+
 def test_get_person_id_fetches_from_api(tmp_path, monkeypatch):
     monkeypatch.setattr(linkedin_poster, "PERSON_ID_FILE", str(tmp_path / ".pid"))
 

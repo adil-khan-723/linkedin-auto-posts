@@ -6,6 +6,8 @@ from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 
+import linkedin_auth
+
 load_dotenv()
 
 LINKEDIN_API = "https://api.linkedin.com/v2"
@@ -17,10 +19,7 @@ DIAGRAM_PNG = "data/diagram.png"
 
 
 def get_access_token():
-    token = os.getenv("LINKEDIN_ACCESS_TOKEN")
-    if not token:
-        raise ValueError("LINKEDIN_ACCESS_TOKEN not set in .env")
-    return token
+    return linkedin_auth.get_access_token()
 
 
 def get_person_id(token):

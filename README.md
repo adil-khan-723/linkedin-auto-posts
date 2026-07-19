@@ -106,18 +106,34 @@ Self-generated fallback pool covers: K8s readiness/liveness probes, Terraform Dy
 
 ## Maintenance
 
-### LinkedIn Token (every ~53 days)
+### LinkedIn Token — auto-refresh (preferred)
 
-The token expires after 60 days. System logs a warning 7 days before expiry in `data/run_log.json`.
+The pipeline renews its own access token on every run using a long-lived
+refresh token (~365 days). Set these repo secrets once:
 
-**To renew:**
-1. Go to [LinkedIn Developer Portal](https://developer.linkedin.com)
+- `LINKEDIN_REFRESH_TOKEN` — long-lived refresh token
+- `LINKEDIN_CLIENT_ID` — app client id
+- `LINKEDIN_CLIENT_SECRET` — app client secret
+
+**One-time bootstrap** (run locally to mint the refresh token):
+```
+export LINKEDIN_CLIENT_ID=xxxx
+export LINKEDIN_CLIENT_SECRET=xxxx
+python get_refresh_token.py          # browser OAuth, prints refresh_token
+gh secret set LINKEDIN_REFRESH_TOKEN --repo adil-khan-723/linkedin-auto-posts
+gh secret set LINKEDIN_CLIENT_SECRET --repo adil-khan-723/linkedin-auto-posts
+```
+Requires the app's Auth tab to list redirect URL `http://localhost:8000/callback`.
+
+Refresh happens in `linkedin_auth.py`. If no `LINKEDIN_REFRESH_TOKEN` is set,
+the code falls back to a static `LINKEDIN_ACCESS_TOKEN` (legacy, expires ~60d).
+
+### Legacy: static token renewal (every ~53 days)
+
+Only needed if the app is not enrolled for programmatic refresh:
+1. [LinkedIn Developer Portal](https://developer.linkedin.com)
 2. Generate new access token with `w_member_social` scope
-3. Update `.env` in this repo:
-   ```
-   LINKEDIN_ACCESS_TOKEN=<new token>
-   ```
-4. Commit and push
+3. `gh secret set LINKEDIN_ACCESS_TOKEN --repo adil-khan-723/linkedin-auto-posts`
 
 ### Checking Run Status
 
