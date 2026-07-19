@@ -1,9 +1,11 @@
-Deployed a service last week and watched it get killed repeatedly during startup. The pod would spin up, liveness probe would fire immediately, see it wasn't responding yet, and kubelet would restart it. Rinse, repeat. I'd set the same probe logic for both liveness and readiness.
+Spent two hours yesterday chasing why a freshly deployed pod kept getting killed during startup. The app was fine—logs looked normal, metrics were healthy—but the pod never stayed running long enough to actually serve traffic.
 
-They're doing completely different jobs. Readiness asks "can this pod handle traffic right now?" Liveness asks "is this pod still alive or is it in some broken state I can't recover from?" I was treating them identically, which meant the second my service took longer than expected to initialize, Kubernetes thought it was dead and started killing it.
+Turned out I'd copied a liveness probe config from another service and used the same settings for readiness. Both checked the same `/health` endpoint every 5 seconds with the same failure threshold. Seemed reasonable at the time.
 
-My startup sequence was legitimately slow. Loading data, warming caches, connecting to dependencies—that's fine. That's not a crash. But my liveness probe had no patience for it, and neither did the default initialDelaySeconds of 0.
+What I missed: the app needed a solid 45 seconds to load its config and warm up connections. The liveness probe didn't care about that. It just saw 5 consecutive failed checks and assumed the pod was dead, so kubelet killed it. Over and over.
 
-I added proper initialDelaySeconds to the liveness probe and tuned the readiness probe to actually check readiness. I added healthier endpoints and graceful degradation checks. Separate concerns, separate configs.
+The readiness probe would've been the right gate—keep traffic away until the app's actually ready. Liveness is supposed to catch hung processes, not slow startups. I had them doing the same job.
 
-Still not entirely sure what the right threshold should be for initialDelaySeconds in different scenarios. Is there a way to make it adaptive, or do most people just trial-and-error this until it stops restarting?
+I fixed it by setting `initialDelaySeconds: 60` on the liveness probe and using a lighter endpoint for it. Readiness stays strict because it actually needs to reflect whether the service can handle requests.
+
+I'm still wrapping my head around whether there's a cleaner pattern here. These two probes seem to always fight each other on timing. Anyone else constantly tweaking these values trying to find the sweet spot?
