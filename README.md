@@ -106,34 +106,36 @@ Self-generated fallback pool covers: K8s readiness/liveness probes, Terraform Dy
 
 ## Maintenance
 
-### LinkedIn Token — auto-refresh (preferred)
+### LinkedIn Token — renewal (every ~2 months)
 
-The pipeline renews its own access token on every run using a long-lived
-refresh token (~365 days). Set these repo secrets once:
+The access token expires ~60 days. Renew with one command:
 
-- `LINKEDIN_REFRESH_TOKEN` — long-lived refresh token
-- `LINKEDIN_CLIENT_ID` — app client id
-- `LINKEDIN_CLIENT_SECRET` — app client secret
-
-**One-time bootstrap** (run locally to mint the refresh token):
 ```
-export LINKEDIN_CLIENT_ID=xxxx
-export LINKEDIN_CLIENT_SECRET=xxxx
-python get_refresh_token.py          # browser OAuth, prints refresh_token
-gh secret set LINKEDIN_REFRESH_TOKEN --repo adil-khan-723/linkedin-auto-posts
-gh secret set LINKEDIN_CLIENT_SECRET --repo adil-khan-723/linkedin-auto-posts
+./renew_token.sh
 ```
-Requires the app's Auth tab to list redirect URL `http://localhost:8000/callback`.
 
-Refresh happens in `linkedin_auth.py`. If no `LINKEDIN_REFRESH_TOKEN` is set,
-the code falls back to a static `LINKEDIN_ACCESS_TOKEN` (legacy, expires ~60d).
+It opens a browser (click **Allow**), mints a fresh access token, and pushes it
+straight to the `LINKEDIN_ACCESS_TOKEN` GitHub secret. No copy-paste.
 
-### Legacy: static token renewal (every ~53 days)
+**First-time setup:** create a local `.env` (gitignored) next to the script:
+```
+LINKEDIN_CLIENT_ID=xxxx
+LINKEDIN_CLIENT_SECRET=xxxx
+```
+Requirements: `gh` authenticated, and the app's Auth tab must list redirect URL
+`http://localhost:8000/callback`.
 
-Only needed if the app is not enrolled for programmatic refresh:
-1. [LinkedIn Developer Portal](https://developer.linkedin.com)
-2. Generate new access token with `w_member_social` scope
-3. `gh secret set LINKEDIN_ACCESS_TOKEN --repo adil-khan-723/linkedin-auto-posts`
+After renewing, verify:
+```
+gh workflow run "LinkedIn Post Pipeline" --repo adil-khan-723/linkedin-auto-posts
+```
+
+**Why not fully automatic?** True auto-refresh (renew every run, no human) needs
+a refresh token, which LinkedIn only issues to apps enrolled in the Community
+Management API. This app is not enrolled, so a browser approval is required each
+renewal. The code (`linkedin_auth.py`) already supports auto-refresh: if you set
+`LINKEDIN_REFRESH_TOKEN` + `LINKEDIN_CLIENT_SECRET` secrets, it uses them and the
+manual step goes away. Until then, `renew_token.sh` is the one-command path.
 
 ### Checking Run Status
 

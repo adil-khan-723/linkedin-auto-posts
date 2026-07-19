@@ -23,11 +23,15 @@ Usage:
 
 It opens a browser, you approve, and it prints the refresh + access tokens.
 """
+import argparse
 import os
+import subprocess
 import sys
 import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlencode, urlparse, parse_qs
+
+DEFAULT_REPO = "adil-khan-723/linkedin-auto-posts"
 
 import requests
 
@@ -57,7 +61,64 @@ class _Handler(BaseHTTPRequestHandler):
         pass
 
 
+def _gh_set_secret(name, value, repo):
+    result = subprocess.run(
+        ["gh", "secret", "set", name, "--repo", repo],
+        input=value,
+        text=True,
+    )
+    if result.returncode == 0:
+        print(f"  set secret {name} on {repo}")
+    else:
+        print(f"  FAILED to set secret {name} (gh exit {result.returncode})")
+
+
+def handle_tokens(data, repo, set_secret):
+    """Print tokens; optionally push them to GitHub secrets via gh."""
+    access = data.get("access_token")
+    refresh = data.get("refresh_token")
+
+    print("\n=== SUCCESS ===")
+    print("access_token (short-lived, ~60d):\n ", access)
+    if refresh:
+        print("\nrefresh_token (~365d) — LINKEDIN_REFRESH_TOKEN secret:\n ", refresh)
+    else:
+        print(
+            "\nNOTE: no refresh_token returned — app is not enrolled for "
+            "programmatic refresh. The access_token above is what the pipeline "
+            "uses (LINKEDIN_ACCESS_TOKEN); rerun this to renew before it expires."
+        )
+
+    if not set_secret:
+        if refresh:
+            print(
+                "\nSet the secrets:\n"
+                f"  gh secret set LINKEDIN_REFRESH_TOKEN --repo {repo}\n"
+                f"  gh secret set LINKEDIN_CLIENT_SECRET --repo {repo}"
+            )
+        else:
+            print(f"\nSet the secret:\n  gh secret set LINKEDIN_ACCESS_TOKEN --repo {repo}")
+        return
+
+    print(f"\nSetting GitHub secrets on {repo} ...")
+    if refresh:
+        _gh_set_secret("LINKEDIN_REFRESH_TOKEN", refresh, repo)
+        client_secret = os.getenv("LINKEDIN_CLIENT_SECRET")
+        if client_secret:
+            _gh_set_secret("LINKEDIN_CLIENT_SECRET", client_secret, repo)
+    else:
+        _gh_set_secret("LINKEDIN_ACCESS_TOKEN", access, repo)
+    print("Done. Trigger a run to verify: "
+          f'gh workflow run "LinkedIn Post Pipeline" --repo {repo}')
+
+
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--set-secret", action="store_true",
+                        help="push the token(s) to GitHub secrets via gh")
+    parser.add_argument("--repo", default=DEFAULT_REPO)
+    args = parser.parse_args()
+
     client_id = os.getenv("LINKEDIN_CLIENT_ID")
     client_secret = os.getenv("LINKEDIN_CLIENT_SECRET")
     if not client_id or not client_secret:
@@ -96,23 +157,7 @@ def main():
         sys.exit(1)
 
     data = resp.json()
-    print("\n=== SUCCESS ===")
-    print("access_token (short-lived, ~60d):\n ", data.get("access_token"))
-    refresh = data.get("refresh_token")
-    if refresh:
-        print("\nrefresh_token (~365d) — store as the LINKEDIN_REFRESH_TOKEN secret:\n ", refresh)
-        print(
-            "\nNow set the repo secrets:\n"
-            "  gh secret set LINKEDIN_REFRESH_TOKEN --repo adil-khan-723/linkedin-auto-posts\n"
-            "  gh secret set LINKEDIN_CLIENT_SECRET --repo adil-khan-723/linkedin-auto-posts\n"
-            "  (LINKEDIN_CLIENT_ID secret should already exist)"
-        )
-    else:
-        print(
-            "\nWARNING: no refresh_token returned. Your app is not enrolled for "
-            "programmatic refresh. Keep updating LINKEDIN_ACCESS_TOKEN manually "
-            "with the access_token above."
-        )
+    handle_tokens(data, repo=args.repo, set_secret=args.set_secret)
 
 
 if __name__ == "__main__":
