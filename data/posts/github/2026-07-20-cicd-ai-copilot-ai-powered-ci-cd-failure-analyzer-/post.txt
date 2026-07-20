@@ -1,0 +1,7 @@
+Spent the last few days wrestling with the Jenkins Notification Plugin and honestly, I'm still not convinced it's reliable enough to be our only failure signal. The plugin works fine in happy-path scenarios, but the moment your load spikes or Jenkins restarts during a build, notification delivery just stops. No error, no queue backup visible, just silence.
+
+So we added a fallback poller that hits the Jenkins API directly every 30 seconds when the webhook goes quiet. It's crude, but it catches what the plugin misses. The trade-off is obvious: more API load and more polling overhead. But at least we're not blind when Notification Plugin decides to ghost us.
+
+Automating the webhook configuration made the setup much simpler. One button on profile activation configures Jenkins with the right endpoints, and people stop manually adding the wrong URLs. We even caught cases where the plugin was installed but the webhook wasn't actually enabled, which looked like it was working until you needed it.
+
+The real question I'm sitting with now: should we lean on this fallback permanently, or does that just hide the Notification Plugin's underlying flakiness? Are we papering over a real problem instead of solving it? Part of me wants to investigate the plugin's source, but that's not really my job here. Just wondering if anyone else has hit this wall.
