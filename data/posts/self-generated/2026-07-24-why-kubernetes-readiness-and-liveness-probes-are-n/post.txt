@@ -1,0 +1,7 @@
+Deployed a new service last week and watched it get hammered by restarts within the first minute. Same liveness probe we've used everywhere else seemed fine in staging. Turns out the application needed a solid 45 seconds to warm up its cache before it could respond to anything, but the liveness probe was firing every 10 seconds with a 5-second timeout. So Kubernetes thought the pod was dead and kept killing it.
+
+I'd been treating both probes like they serve the same purpose, just at different points in the pod lifecycle. That's backward. Readiness is about traffic—"should this pod receive requests?" Liveness is about "is this pod actually running or is it a zombie?" They answer completely different questions.
+
+What I missed was setting initialDelaySeconds high enough on the liveness probe to let the app actually start. Adding a 60-second delay stopped the restarts. But now I'm second-guessing the whole approach. Should slow-starting apps even use liveness probes aggressively, or is there a better pattern I'm missing? The readiness probe kept working fine the whole time and correctly held traffic until the pod was ready.
+
+Still figuring out how to handle services that have different warm-up requirements across environments.
