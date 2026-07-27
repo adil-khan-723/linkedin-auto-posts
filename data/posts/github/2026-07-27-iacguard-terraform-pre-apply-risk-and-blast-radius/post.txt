@@ -1,0 +1,9 @@
+Spent the last week actually running IACGuard against our Terraform before apply, and I'm caught between impressed and skeptical. The tool sits in your pipeline and scans what you're about to deploy, flagging risks like security group changes, IAM permission escalations, and resource deletions. On paper, brilliant. In practice, I'm drowning in what feels like noise.
+
+The blast radius detection works when it works. Caught a colleague about to modify a load balancer security group that would've broken prod ingress — that's real value. But then it flagged every variable change as potential risk, even harmless ones. Spending an hour triaging false positives defeats the purpose.
+
+The pre-apply snapshot actually delivers value. Before you run terraform apply, you see exactly what's changing and why. No more "wait, we're deleting *what*?" in the middle of a deploy. The README finally explains this clearly — took them a few commits to get there.
+
+I'm still figuring out the signal-to-noise ratio though. The tool knows *what* you're changing, but context matters. A security group modification in dev is not the same as prod, but IACGuard can't quite tell the difference without heavy customization.
+
+Has anyone else tuned this to actually work in a real pipeline without becoming a bottleneck?
