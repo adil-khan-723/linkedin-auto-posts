@@ -1,0 +1,9 @@
+Spent the last two days debugging why a service kept cycling restarts on deploy. New pods would come up, hit the liveness probe almost immediately, fail it, and get killed. Classic restart loop.
+
+Turns out I'd configured both readiness and liveness probes identically — same endpoint, same 10-second timeout. Both check if the service is healthy, right? Wrong.
+
+The pod was doing legitimate startup work. Database migrations, cache warming, that kind of thing. It needed maybe 45 seconds to be actually ready. The readiness probe was working fine — it kept traffic away during startup. But the liveness probe didn't care about startup time. It just saw an unresponsive endpoint and assumed the container was broken.
+
+Kubernetes was doing exactly what I told it to do. The liveness probe's job is "keep this container alive if it's actually running properly." The readiness probe is "is this ready to serve traffic." Those are different questions, especially during startup.
+
+Fixed it by adding an initialDelaySeconds and bumping the timeout on the liveness probe. Still feels a bit fuzzy to me though — like I'm tuning numbers to make things work rather than understanding the real boundary between "broken" and "still starting up." How are you all handling slow-start services? Is there a cleaner pattern I'm missing?
