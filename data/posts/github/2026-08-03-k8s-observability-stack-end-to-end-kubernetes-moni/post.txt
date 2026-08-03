@@ -1,0 +1,7 @@
+Spent the last few days wrestling with ServiceMonitor selectors and realized I've been overthinking how Prometheus discovers targets in our cluster. We added a Flask app that exports custom metrics, set up the ServiceMonitor with what I thought were matching labels, and nothing happened. Prometheus wasn't scraping it.
+
+Turned out the ServiceMonitor was looking for a specific namespace label that didn't exist on our Service. Obvious in hindsight, but I kept assuming Prometheus would just find anything with a metrics endpoint. It won't. The selector has to match exactly. If your Service is in one namespace and ServiceMonitor in another, you need `namespaceSelector` configured too.
+
+Got that sorted, metrics started flowing, and I built out some PromQL queries in Grafana that actually show request latency percentiles instead of meaningless averages. The real surprise came under load testing: our custom Flask histogram buckets were way too coarse. I was bucketing response times at [0.1, 1, 10] seconds, which meant everything under 100ms looked identical. I switched to [0.01, 0.05, 0.1, 0.5, 1] and suddenly the dashboard actually told me something useful.
+
+I'm still figuring out whether we should scrape every 15 seconds or if 30 seconds works without losing important detail during spikes. I'm also not entirely sure if our cardinality will bite us later when we add more services. Anyone running into memory issues with high-cardinality metrics in their Prometheus setup?
