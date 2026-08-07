@@ -1,0 +1,11 @@
+Spent two hours this morning chasing why a perfectly healthy pod kept getting evicted right after it started. The service was up, responding to requests, but kubelet was terminating it like clockwork at the 30-second mark.
+
+Turned out I'd copied a liveness probe config from another deployment and didn't adjust the initialDelaySeconds. The probe was set to 5 seconds, way too aggressive for this particular application which needs a good 20-25 seconds to fully initialize its connection pool and load some cached data into memory.
+
+Here's the part that got me: the pod wasn't actually failing the probe. It was *restarting* because I'd made liveness and readiness identical. Same httpGet endpoint, same thresholds, same timeout. Kubernetes was treating "not ready yet" the same as "broken and unrecoverable," which made sense from the kubelet's perspective but was totally wrong for my use case.
+
+The readiness probe should have been the canary. It tells Kubernetes "don't send traffic yet, I'm still warming up." The liveness probe should have been stricter and only fire if something genuinely went wrong mid-operation. Instead, both were gatekeeping the startup window.
+
+I bumped initialDelaySeconds on liveness to 45 and split the configs so readiness is more lenient. The pod stopped restarting immediately.
+
+I'm still trying to figure out if there's a better way to handle slow-starting apps without playing whack-a-mole with timing values each time I deploy something new.
