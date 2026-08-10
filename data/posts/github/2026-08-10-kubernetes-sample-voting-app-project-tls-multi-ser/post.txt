@@ -1,0 +1,7 @@
+Spent the last couple hours debugging why postgres kept dropping connections in my voting app and I finally traced it back to something ridiculous: I had the port hardcoded in the connection string but never actually exposed it in the service manifest. The deployment was fine. The pod was fine. But the service was listening on 5432 while my app was trying to hit a different port entirely.
+
+Fixed that, added PodDisruptionBudgets to the voting deployment because I got tired of my cluster autoscaler nuking pods mid-request, and then realized my label selectors were a mess. I had voting-app on some pods, vote-app on others. Nothing catastrophic, just inconsistent enough that it took me a few minutes to figure out why the service suddenly stopped routing to half my replicas.
+
+The TLS part is still making me second-guess myself though. I got the certs working at the ingress layer, but I'm still not entirely clear on when you actually need pod-to-pod encryption versus just securing the ingress. The voting app talks to postgres and redis, both internal. Do I really need to encrypt that traffic or am I overthinking it?
+
+Anyway, the app works now. Still feels fragile in ways I don't fully understand yet.

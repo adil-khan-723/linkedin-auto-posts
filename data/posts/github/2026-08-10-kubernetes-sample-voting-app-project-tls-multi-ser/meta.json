@@ -1,0 +1,9 @@
+{
+  "topic": "kubernetes-sample-voting-app-project-tls: Multi-service Kubernetes app to understand networking, service discovery, and ingress routing. Built to learn how distributed systems actually work. added tls",
+  "angle": "commits: added pod disruption budget for voting deployment, fixed the port of postgres, labels changed",
+  "source": "github",
+  "repo": "kubernetes-sample-voting-app-project-tls",
+  "linkedin_id": "urn:li:share:7492457895154909185",
+  "posted_at": "2026-08-10T05:52:46.107184+00:00",
+  "created_at": "2026-08-10T05:52:46.107184+00:00"
+}
