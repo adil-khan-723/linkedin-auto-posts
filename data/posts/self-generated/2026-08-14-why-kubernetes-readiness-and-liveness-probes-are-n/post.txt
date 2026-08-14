@@ -1,0 +1,9 @@
+Spent the last hour debugging why our API pods kept getting killed right after deployment. Turned out I'd been using the same probe config for both liveness and readiness, and it was a mess.
+
+Here's what happened: the pod needed about 45 seconds to fully initialize—loading configs, warming up connections, all that. I set a liveness probe with a 30-second initialDelaySeconds thinking it would just check if the container was alive. But liveness doesn't care about "ready to serve traffic." It cares about "is this thing completely broken." So 45 seconds in, the liveness probe fires, sees the pod still initializing, decides it's deadlocked, and kills it.
+
+The readiness probe would've been fine there. It's supposed to keep the pod out of the load balancer until it's actually ready. Let it sit in NotReady state for a minute, no problem. But liveness is the nuclear option.
+
+I split them: readiness gets the 45-second delay and stricter threshold, liveness gets a much longer timeout that basically just checks if the main process is still running. Pods stopped cycling.
+
+What's still bugging me is the gray area in between. There's definitely a sweet spot for liveness thresholds that I feel like I'm guessing at. How do you actually calibrate that without just throwing numbers at it until deploys stop failing?
