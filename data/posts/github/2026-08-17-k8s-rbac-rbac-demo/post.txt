@@ -1,0 +1,7 @@
+Spent the last few days wrestling with a permissions issue that seemed straightforward until it wasn't. We have this internal RBAC observability tool that audits who can actually do what in our clusters, and I was trying to give a new team read-only access to the audit logs. Sounds simple: just a ClusterRole with get/list on the audit resources, bind it, done.
+
+Except the tool kept silently failing for their ServiceAccount. No errors, just nothing. Turned out the issue was deeper than the role itself. The tool's README had just been updated with new bindings, but there was a mismatch between what the documentation said the role should cover and what we'd actually committed. The audit resources needed an extra verb—`watch`—that wasn't in the original role definition. Without it, the tool could list events but couldn't stream updates.
+
+Fixed it by aligning the actual ClusterRole with what the README promised and added the watch verb. Suddenly everything worked. But what's bugging me is how easily this slipped through. The bindings looked correct on paper. It's that gap between "the role exists" and "the role does what you think it does" that gets you.
+
+Anyone else run into situations where RBAC permissions silently fail in ways that make debugging harder than the initial setup? Still trying to figure out if there's a pattern I'm missing here.

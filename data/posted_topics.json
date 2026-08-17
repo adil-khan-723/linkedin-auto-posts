@@ -279,6 +279,13 @@
       "repo": null,
       "post_id": "urn:li:share:7493908199239057408",
       "posted_at": "2026-08-14T05:55:45.159403"
+    },
+    {
+      "topic": "K8s-RBAC: RBAC demo",
+      "source": "github",
+      "repo": "K8s-RBAC",
+      "post_id": "urn:li:share:7494982651385368576",
+      "posted_at": "2026-08-17T05:05:14.491066"
     }
   ]
 }
