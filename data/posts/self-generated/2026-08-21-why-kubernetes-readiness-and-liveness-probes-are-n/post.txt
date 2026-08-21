@@ -1,0 +1,11 @@
+Had a rough morning debugging why a perfectly healthy pod kept getting killed by Kubernetes. Turns out I'd configured a liveness probe with a 5-second initialDelaySeconds, which was way too aggressive for an application that takes 15-20 seconds to actually boot.
+
+What I didn't realize until digging through the logs: I'd set the same probe configuration for both liveness and readiness. Big mistake.
+
+The readiness probe should have been the gatekeeper, telling Kubernetes "this pod isn't ready for traffic yet, don't route to it." That's its job. But the liveness probe was firing too early and saying "this pod is dead, kill it and restart." So the pod would start initializing, hit the liveness check before it was ready, get terminated, and the whole cycle would repeat.
+
+I fixed it by giving the liveness probe a proper initialDelaySeconds (30 seconds in this case) and letting the readiness probe with a shorter delay handle the pre-traffic checks. Now the pod gets time to initialize, the readiness probe validates it can handle requests, and the liveness probe only steps in if something actually crashes.
+
+The confusing part is they both use the same mechanics—same HTTP endpoints, same thresholds. So it's easy to treat them identically. But they're solving completely different problems and need different timing.
+
+Still not 100% sure on the right initialDelaySeconds formula for different app types. How are you all handling that?
