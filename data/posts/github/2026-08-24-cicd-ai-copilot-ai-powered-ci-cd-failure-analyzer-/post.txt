@@ -1,0 +1,7 @@
+Been wrestling with this all week: we integrated an LLM analyzer into our Jenkins pipeline to flag failures early, but the Notification Plugin webhook kept dropping events. So we built a fallback poller. Sounds straightforward, except now I'm watching two completely different failure detection paths run in parallel, and they don't always agree on what broke.
+
+The one-click setup helped—no more manual webhook config—but it exposed something frustrating. The plugin posts notifications reliably maybe 85% of the time. When it doesn't, the poller catches it, but there's a window where we're analyzing stale logs and the LLM is working with incomplete context. We added Slack approval gates so humans can reject bad analysis before it auto-remediates, which bought us safety. But I'm sitting here wondering if we're just papering over the real problem: which source should we actually trust?
+
+The verification step works well. We check tool outputs against actual build artifacts before the LLM weighs in. Running dual failure detection paths and needing humans to arbitrate between them feels incomplete, though.
+
+How are others handling this? Is the answer to just pick one detection method and live with occasional misses, or are you running parallel systems and accepting the noise?
