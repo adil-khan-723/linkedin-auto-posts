@@ -1,0 +1,9 @@
+Spent three hours yesterday debugging why a pod kept getting killed right after it started. The app was fine, logs looked clean, but kubelet was terminating it within seconds of startup.
+
+Turned out I'd set a liveness probe with a 5-second initialDelaySeconds and a 2-second timeout. The pod needed about 8 seconds to actually be ready to serve traffic — it was doing some initialization work on startup. The liveness probe kept timing out, kubelet saw "not alive" and killed it. Then it restarted. Same cycle.
+
+Here's what tripped me up: readiness and liveness probes hit the same endpoint in my setup, so I assumed they were doing the same thing. They're not. The readiness probe tells Kubernetes "this pod can take traffic now." The liveness probe is asking "is this pod still alive or is it stuck?" They have completely different jobs.
+
+Once I added a proper initialDelaySeconds to the liveness probe (bumped it to 15 seconds) the pod stayed up. But I'm still not 100% sure what the right strategy is — should I have a separate liveness endpoint that's less strict, or just accept that slow-starting apps need longer initial delays? 
+
+I've got readiness dialed in now, but I feel like I'm still cargo-culting the liveness configuration.
