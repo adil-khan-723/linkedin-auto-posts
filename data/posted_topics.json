@@ -307,6 +307,13 @@
       "repo": null,
       "post_id": "urn:li:share:7499146257509191680",
       "posted_at": "2026-08-28T16:49:56.049913"
+    },
+    {
+      "topic": "iacguard: Terraform pre-apply risk and blast radius analyzer",
+      "source": "github",
+      "repo": "iacguard",
+      "post_id": "urn:li:share:7500145512751439872",
+      "posted_at": "2026-08-31T11:00:36.627856"
     }
   ]
 }

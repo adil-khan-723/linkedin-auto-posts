@@ -1,0 +1,7 @@
+Spent the last few weeks actually using IACGuard in our pipeline, and I keep hitting this weird gap between what I expected it to do and what it's actually catching.
+
+The tool's supposed to flag risky Terraform changes before they hit apply, like spotting when someone's about to delete a database or open security groups to 0.0.0.0. Sounds perfect on paper. But running it against our actual infrastructure code, I realized it's flagging *everything* as medium risk because I haven't tuned the blast radius thresholds for our specific setup. It's like having a smoke detector that goes off when you make toast.
+
+What threw me was how much context matters. IACGuard sees "destroy database instance" and marks it red. But in our dev environment, that's a weekly thing we actually do. Same change in prod? Obviously catastrophic. The tool doesn't know the difference yet, which means I'm manually reviewing almost every flag anyway. That defeats the whole purpose of automation.
+
+I'm still figuring out if this is a tuning problem on my end or if the analyzer needs environment-aware rules built in. I'm curious whether anyone else is using it and how they've solved this. Right now it feels like IACGuard caught something real, but I can't trust it enough to actually block deployments without second-guessing everything.
