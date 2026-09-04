@@ -1,0 +1,11 @@
+Spent the last few hours debugging why a service kept crashing on deployment, and it turned out to be a classic mistake I somehow never fully internalized until now.
+
+We have this application that needs about 90 seconds to warm up, loading data and initializing connections. I'd set both the liveness and readiness probes to the same endpoint with the same thresholds. Seemed efficient at the time.
+
+What happened: during a rolling update, the pod started up, the kubelet started probing immediately, and after about 30 seconds the liveness probe started failing. Kubernetes saw a "dead" container and killed it. The pod never got a chance to finish initializing.
+
+The thing I missed, and this is embarrassingly obvious in retrospect, is that these probes do completely different jobs. Readiness checks if the pod is ready to take traffic. Liveness checks if the pod is stuck and unrecoverable. They shouldn't share the same thresholds or timing just because they hit the same endpoint.
+
+I moved the liveness probe to a simpler health check and bumped its failure threshold way up. Readiness still checks the full initialization. Now pods get time to boot without getting killed prematurely.
+
+What's still bugging me: how many of my other services are running with this same misconfiguration? And is there actually a solid way to detect "slow to start but healthy" versus "truly hung" without just guessing at timeouts?

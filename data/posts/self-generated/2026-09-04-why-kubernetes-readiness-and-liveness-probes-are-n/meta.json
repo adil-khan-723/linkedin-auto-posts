@@ -1,0 +1,9 @@
+{
+  "topic": "Why Kubernetes readiness and liveness probes are not interchangeable",
+  "angle": "liveness probe killed a slow-start pod and I had to trace why",
+  "source": "self-generated",
+  "repo": null,
+  "linkedin_id": "urn:li:share:7501564429109706753",
+  "posted_at": "2026-09-04T08:58:53.085573+00:00",
+  "created_at": "2026-09-04T08:58:53.085573+00:00"
+}
