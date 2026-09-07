@@ -1,0 +1,9 @@
+Spent the last few days wrestling with why my custom Flask metrics weren't showing up in Prometheus, even though the `/metrics` endpoint was returning data when I curl'd it directly.
+
+Turns out the ServiceMonitor was fine. The scrape config was fine. But I'd set `honor_labels: true` globally in my Prometheus config, and one of my Flask apps was already exporting a `job` label that conflicted with Prometheus's own labeling. So the scrape was happening, metrics were being collected, but Prometheus silently dropped them during the relabel phase.
+
+Caught it by digging through the scrape debug page and looking at the "dropped metrics" section, something I'd never actually checked before. I always assumed if metrics weren't in Prometheus, the scrape itself had failed.
+
+The fix was a single relabel rule to drop that conflicting label before ingestion. What stuck with me though: Prometheus will happily scrape and then discard data without making noise about it. The metrics endpoint looks healthy. The ServiceMonitor looks correct. But stuff just vanishes.
+
+Now I wonder how many times I've had metrics silently dropped in production because I wasn't actively checking that dropped metrics counter. I'm still not sure if there's a better way to surface these issues, or if this is just how Prometheus's label handling works.

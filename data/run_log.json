@@ -679,6 +679,22 @@
       "success": true,
       "post_id": "urn:li:share:7501564429109706753",
       "error": null
+    },
+    {
+      "date": "2026-09-07T09:31:58.541805",
+      "topic": "k8s-observability-stack: End-to-end Kubernetes monitoring pipeline with Prometheus and Grafana \u2014 custom Flask metrics, ServiceMonitor, PromQL dashboards, and real debugging under load.",
+      "source": "github",
+      "success": true,
+      "post_id": "urn:li:share:7502659920681664512",
+      "error": null
+    },
+    {
+      "date": "2026-09-07T09:31:58.557134+00:00",
+      "topic": "k8s-observability-stack: End-to-end Kubernetes monitoring pipeline with Prometheus and Grafana \u2014 custom Flask metrics, ServiceMonitor, PromQL dashboards, and real debugging under load.",
+      "source": "github",
+      "success": true,
+      "post_id": "urn:li:share:7502659920681664512",
+      "error": null
     }
   ]
 }
