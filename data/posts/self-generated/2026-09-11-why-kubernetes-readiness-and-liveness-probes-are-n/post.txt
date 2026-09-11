@@ -1,0 +1,9 @@
+Spent two hours yesterday chasing why a pod kept restarting right after it came up. The service looked healthy, but Kubernetes kept nuking it within the first minute.
+
+Turns out I'd set the same probe logic for both liveness and readiness. Seemed efficient at the time. The probe was checking if the app could hit its database, which took about 45 seconds on cold start. Smart, right? Catch unhealthy pods early.
+
+Wrong. The liveness probe started firing before the readiness probe could do its job. Kubernetes interpreted those failures as "this pod is dead, kill it" instead of "this pod isn't ready yet." Every deployment turned into a restart loop.
+
+The fix was obvious in hindsight. Readiness needed a longer initialDelaySeconds and failureThreshold to give the app time to warm up its connection pool. Liveness stayed aggressive but only kicked in after the pod was actually serving traffic.
+
+What's still bugging me: we have two different microservices in the same cluster, and each one needed different timing. The readiness threshold that works for one breaks the other. I'm using some conservative defaults now, but I genuinely don't know if there's a pattern I'm missing or if this is just "tune it for your workload" territory.
