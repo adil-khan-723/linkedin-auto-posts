@@ -1,0 +1,7 @@
+Spent the last hour debugging why postgres kept timing out in my voting app, and it turned out I'd changed the port in the deployment but never updated the service selector labels. The connection string was pointing at port 5432, the service was listening on 5433, and nothing was actually failing loudly — just silently dropping connections.
+
+While fixing that, I realized I'd been sloppy with PDB placement too. Had a PodDisruptionBudget set to minAvailable: 1 on a three-replica voting deployment, but the postgres pod had nothing protecting it. One eviction and the whole app stops working regardless of how many voting instances stay up.
+
+The label changes came from trying to make the selectors more explicit (app: voting, component: frontend vs just app: voting), but it taught me how easy it is to break service discovery without realizing it immediately. Kubernetes won't yell at you. It'll just route to nothing and let your application timeout.
+
+Now I'm wondering how many times this has happened in production setups where the labels drifted over time but nobody noticed until traffic patterns changed. Is there a way to actually validate that your service selectors are hitting what you think they're hitting without relying on logs and timeouts to tell you something's wrong?
