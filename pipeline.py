@@ -51,6 +51,26 @@ def write_file(path, content):
     Path(path).write_text(content)
 
 
+def recent_post_openers(limit=5):
+    """First 2 lines of the most recently archived posts, so the draft/gate
+    steps can avoid repeating the same opening structure."""
+    posts_root = Path("data/posts")
+    if not posts_root.exists():
+        return []
+    dirs = sorted(
+        (d for d in posts_root.glob("*/*") if d.is_dir()),
+        key=lambda d: d.name,
+        reverse=True,
+    )[:limit]
+    openers = []
+    for d in dirs:
+        post_file = d / "post.txt"
+        if post_file.exists():
+            first_lines = "\n".join(post_file.read_text().strip().splitlines()[:2])
+            openers.append(first_lines)
+    return openers
+
+
 # ── Phase 1: Scrape + pick topic ──────────────────────────────────────────────
 
 log("PHASE 1: scrape + pick topic")
@@ -76,7 +96,16 @@ post_generator_rules = read_file("prompts/post_generator.md")
 humanizer_rules = read_file("prompts/humanizer_rules.md")
 quality_criteria = read_file("prompts/quality_criteria.md")
 
+openers = recent_post_openers(limit=5)
+openers_block = (
+    "Recent post openers — do NOT reuse any of these opening structures, write a structurally different opening:\n"
+    + "\n".join(f"- {o}" for o in openers)
+    if openers else ""
+)
+
 topic_context = f"Topic: {topic}\nAngle: {angle}"
+if openers_block:
+    topic_context += f"\n\n{openers_block}"
 
 MAX_RETRIES = 3
 approved_post = None
@@ -95,7 +124,7 @@ for attempt in range(1, MAX_RETRIES + 1):
     log("Humanized")
 
     verdict = ask(
-        f"{quality_criteria}\n\n---\n\nPost to evaluate:\n\n{humanized}",
+        f"{quality_criteria}\n\n---\n\n{openers_block}\n\n---\n\nPost to evaluate:\n\n{humanized}",
     )
     log(f"Quality gate: {verdict[:60]}")
 
@@ -218,18 +247,12 @@ if success_runs:
                 "error": "WARNING: LinkedIn access token expires in less than 7 days. Regenerate at https://developer.linkedin.com and update secrets.",
             })
             log("WARNING: token expiry warning added")
+        write_file("data/run_log.json", json.dumps(run_log, indent=2))
     except Exception:
         pass
 
-# Append success entry
-run_log["runs"].append({
-    "date": now_utc.isoformat(),
-    "topic": topic,
-    "source": source,
-    "success": True,
-    "post_id": linkedin_id,
-    "error": None,
-})
-write_file("data/run_log.json", json.dumps(run_log, indent=2))
+# Note: the success entry itself is already written by linkedin_poster.py's
+# log_and_update (called as a subprocess in Phase 4) — appending it again here
+# duplicated every run in run_log.json with the same post_id, so it's been removed.
 
 log("=== PIPELINE COMPLETE ===")

@@ -13,6 +13,8 @@ Evaluate the post against these rules. One failure = REJECT.
 7. Ends with a lesson summary or moral
 8. Sounds generic — could have been written about any company, any team, any project
 9. No specific technical detail (tool name, config key, flag, behavior, error)
+10. Opens with "Spent [duration] [gerund]ing why/debugging/chasing/wrestling with..." or any close variant of that template (e.g. "Just spent...", "Been wrestling with...")
+11. Opening sentence follows the same structure/shape as an opening line in any of the last 5 posts in `data/posts/*/*/post.txt` (compare rhetorical shape, not just exact wording — a reworded duplicate still fails)
 
 ## Response format
 

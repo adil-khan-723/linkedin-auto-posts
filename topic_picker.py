@@ -103,35 +103,50 @@ def _repos_on_cooldown(posted_entries, now):
     return on_cooldown
 
 
+def _pick_least_recently_used(pool, posted_entries, key_field):
+    """Pick the pool item never posted, or — once every item has been posted
+    at least once — the one posted longest ago. Prevents a pool from
+    permanently pinning to the same first entry once fully cycled through."""
+    def last_posted_at(key_value):
+        timestamps = [
+            e.get("posted_at") for e in posted_entries
+            if e.get(key_field) == key_value and e.get("posted_at")
+        ]
+        return max(timestamps) if timestamps else None
+
+    def sort_key(item):
+        last = last_posted_at(item[key_field])
+        return (last is not None, last or "")
+
+    return min(pool, key=sort_key)
+
+
 def pick_topic():
     scraped = load_json(SCRAPED_FILE, {"repos": []})
     posted = load_json(POSTED_FILE, {"posted": []})
+    posted_entries = posted.get("posted", [])
 
     now = datetime.datetime.utcnow()
-    used_self = {p["topic"] for p in posted.get("posted", []) if not p.get("repo")}
 
     # Monday (weekday 0) = GitHub repo topic; Friday (weekday 4) = self-generated
     is_monday = now.weekday() == 0
 
     if is_monday:
-        cooldown = _repos_on_cooldown(posted.get("posted", []), now)
+        cooldown = _repos_on_cooldown(posted_entries, now)
         candidates = extract_repo_topics(scraped["repos"])
         available = [t for t in candidates if t["repo"] not in cooldown]
         if not available:
             available = candidates
         if available:
-            selected = {**available[0], "source": "github"}
+            picked = _pick_least_recently_used(available, posted_entries, "repo")
+            selected = {**picked, "source": "github"}
         else:
             # No GitHub repos available — fall through to self-generated
-            unused_self = [t for t in SELF_GENERATED_TOPICS if t["topic"] not in used_self]
-            if not unused_self:
-                unused_self = SELF_GENERATED_TOPICS
-            selected = {**unused_self[0], "source": "self-generated"}
+            picked = _pick_least_recently_used(SELF_GENERATED_TOPICS, posted_entries, "topic")
+            selected = {**picked, "source": "self-generated"}
     else:
-        unused_self = [t for t in SELF_GENERATED_TOPICS if t["topic"] not in used_self]
-        if not unused_self:
-            unused_self = SELF_GENERATED_TOPICS
-        selected = {**unused_self[0], "source": "self-generated"}
+        picked = _pick_least_recently_used(SELF_GENERATED_TOPICS, posted_entries, "topic")
+        selected = {**picked, "source": "self-generated"}
 
     result = {
         "topic": selected["topic"],

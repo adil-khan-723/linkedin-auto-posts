@@ -24,6 +24,28 @@ Read data/selected_topic.json. Use the `topic` and `angle` fields as the startin
 - 150-250 words
 - First person throughout
 - No hashtags
-- Do NOT start with "Today I learned" or "I recently discovered"
+
+## Opening Line — avoid the template trap
+Do NOT open with "Today I learned", "I recently discovered", or any variant of
+**"Spent [duration] [gerund]ing why/debugging/chasing/wrestling with..."**
+(e.g. "Spent two hours yesterday chasing why...", "Just spent the last few days
+debugging..."). That exact shape has been used in most of the last dozen posts —
+it reads as a template, not a person.
+
+Before writing, check `data/posts/*/*/post.txt` (most recent 5, by directory
+date) and note how each one opens. Pick a different opening move than any of
+them. Some options:
+- Drop straight into the middle of the incident ("A pod kept restarting every
+  forty seconds and I had no idea why.")
+- Open on the wrong assumption, stated flat ("I assumed liveness and readiness
+  probes could share the same check. They can't.")
+- Open with what someone else said or asked ("A teammate asked why our pods
+  kept flapping and I didn't have a good answer.")
+- Open on the symptom, not the time spent ("Kubectl kept showing CrashLoopBackOff
+  on a pod that logged nothing wrong.")
+- Open with a blunt one-line verdict, explain after.
+
+Vary sentence rhythm and structure across posts — don't reuse the same
+opening shape even with different words swapped in.
 
 Output ONLY the post text. Nothing else.

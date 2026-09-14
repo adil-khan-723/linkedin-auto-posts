@@ -42,7 +42,9 @@ Read `data/selected_topic.json`. Note the `topic`, `angle`, and `source` fields.
 
 ## Step 4: Generate Post Draft
 
-Read `prompts/post_generator.md` carefully. Write a LinkedIn post following all rules in that file, using the topic and angle from Step 3.
+Before drafting, list `data/posts/*/*/post.txt` sorted by directory date (newest first) and read the opening 1-2 sentences of the most recent 5. Note their opening structure so you don't repeat it.
+
+Read `prompts/post_generator.md` carefully. Write a LinkedIn post following all rules in that file, using the topic and angle from Step 3, and using an opening line that's structurally different from every one of those 5 recent posts.
 
 ---
 
@@ -54,7 +56,7 @@ Read `prompts/humanizer_rules.md`. Apply every rule to your draft. Rewrite any s
 
 ## Step 6: Quality Gate
 
-Read `prompts/quality_criteria.md`. Evaluate your humanized post against every criterion.
+Read `prompts/quality_criteria.md`. Evaluate your humanized post against every criterion, including comparing its opening line against the last 5 posts read in Step 4.
 
 - If **PASS**: continue to Step 7.
 - If **REJECT**: note the reason, rewrite the post (return to Step 4 with the rejection reason in mind). Track retry count.
