@@ -1,0 +1,7 @@
+I switched a service from Debian slim to Alpine last week and immediately regretted it. The app built fine, image was half the size, deployed fine, then random syscalls started failing in production. Alpine uses musl libc instead of glibc, and a library we depend on wasn't compiled against musl. The error messages were cryptic enough that it took me an hour to figure out what was happening.
+
+What threw me most was how inconsistent it felt. Some things worked. Some things didn't. A colleague asked if we could just vendor a glibc version, which sent me down a rabbit hole of trying to run glibc on Alpine—technically possible, and completely pointless given why I chose Alpine in the first place.
+
+I reverted back to slim. Yeah, the image is bigger. But the operational friction isn't worth saving a hundred megabytes when I'm still troubleshooting runtime failures at 2 AM. Alpine appeals to everyone because the marketing is effective, but the decision shouldn't be "smaller image good." It should be "I've actually tested this specific dependency stack against musl and it works."
+
+I'm wondering how many other teams just switch because everyone else seems to, and how many are running into the same edge cases without realizing it's the base image causing it. Ever had a library blow up on Alpine but work fine on Debian?
