@@ -4,27 +4,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Fully autonomous LinkedIn post scheduler. Posts DevOps content 2x/week (Mon/Fri 10am IST) with zero manual involvement. Scheduled by an Anthropic cloud routine, which runs `prompts/agent_instructions.md` via Claude Code headless mode.
+Fully autonomous LinkedIn post scheduler. Posts DevOps content 2x/week (Mon/Fri 10am IST) with zero manual involvement. Scheduled by GitHub Actions (`.github/workflows/post.yml`) running `pipeline.py` on a GitHub-hosted runner — chosen specifically so Anthropic tokens are spent only on content generation, never on orchestration (see "Schedule" below).
 
 ## How a Run Works
 
 ```
-launchd fires run_local.sh at 10am IST
-  → git pull latest state
-  → claude -p "Follow prompts/agent_instructions.md step by step"
-     Step 0: pip install -r requirements-prod.txt
-     Step 1: python github_scraper.py      → data/scraped_data.json
-     Step 2: python topic_picker.py        → data/selected_topic.json
-     Step 3-6: Claude reads topic, writes post, humanizes, quality gates (3 retries)
-     Step 7: python mermaid_generator.py   → data/diagram.png (skips if topic not visual)
-     Step 8: python linkedin_poster.py "POST TEXT"
-               → uploads diagram if present, posts to LinkedIn ugcPosts API
-               → appends to data/run_log.json + data/posted_topics.json
-     Step 9: Token expiry check
-     Step 11: git push state files to GitHub
+GitHub Actions cron fires post.yml at 10am IST (Mon/Fri)
+  → pip install -r requirements-prod.txt anthropic
+  → python pipeline.py
+     Phase 1: python github_scraper.py, python topic_picker.py (no LLM)
+     Phase 2: draft → humanize → quality gate (3 retries) — 3 Anthropic API
+              calls per attempt, model claude-haiku-4-5, prompts read from
+              prompts/post_generator.md, humanizer_rules.md, quality_criteria.md
+     Phase 3: python mermaid_generator.py               → data/diagram.png (skips if not visual)
+     Phase 4: python linkedin_poster.py <approved text>  → posts to LinkedIn ugcPosts API
+              → appends to data/run_log.json + data/posted_topics.json
+     Phase 5: archive post text + meta.json under data/posts/
+     Phase 6: token expiry check
+  → commit + push state files to GitHub
 ```
 
-The agent (Claude) generates the post text itself — `post_generator.md`, `humanizer_rules.md`, and `quality_criteria.md` are prompt files Claude reads during the run, not Python code.
+Only Phase 2 calls the Anthropic API. Every other phase is plain Python/subprocess — no LLM, no tokens spent.
 
 ## Commands
 
@@ -77,10 +77,10 @@ bash run_local.sh
 - Required scopes: `w_member_social`, `openid`, `profile`, `email`
 - Person ID cached in `data/.linkedin_person_id` (gitignored) — avoids API call each run
 
-### Schedule (Anthropic cloud routine)
-- Runs fully in Anthropic's cloud — Mac does not need to be on. See README "Schedule" section for the routine ID/link.
-- Cadence: Mon/Fri 10am IST (2x/week).
-- The local `launchd` plist (`~/Library/LaunchAgents/com.linkedin.bot.plist`) and the `.github/workflows/post.yml` cron are both disabled — they used to fire independently alongside this routine, causing duplicate/irregular posts. Do not re-enable either without also updating the routine so there's only one active scheduler.
+### Schedule (GitHub Actions)
+- `.github/workflows/post.yml` cron, Mon/Fri 4:30 UTC (10am IST), runs `pipeline.py` on a GitHub-hosted runner — no Mac required, no Claude Code orchestration cost.
+- Secrets required in the repo: `ANTHROPIC_API_KEY`, `LINKEDIN_ACCESS_TOKEN`, `LINKEDIN_CLIENT_ID`.
+- The local `launchd` plist (`~/Library/LaunchAgents/com.linkedin.bot.plist.disabled`) and the Anthropic cloud routine (`trig_01CdA8YWa1EAGbHtxVAi5KNx`) are both disabled/paused — they ran the full pipeline through Claude Code's agentic loop (`prompts/agent_instructions.md`), burning tokens on mechanical steps as well as content generation, and firing independently caused duplicate/irregular posts. Do not re-enable either without disabling this cron first, to keep a single scheduler.
 
 ## Credentials (.env)
 

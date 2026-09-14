@@ -1,13 +1,18 @@
 name: LinkedIn Post Pipeline
 
 on:
-  # Cron schedule disabled — the Anthropic cloud routine (trig_01CdA8YWa1EAGbHtxVAi5KNx,
-  # see README "Schedule" section) is now the single source of truth for scheduled runs.
-  # This workflow used to fire independently on Mon/Fri, causing duplicate/irregular
-  # posts alongside the routine and the local launchd job. Kept for manual/debug runs only.
-  # schedule:
-  #   - cron: '30 4 * * 1'  # Monday 10:00am IST (04:30 UTC) — GitHub repo topic
-  #   - cron: '30 4 * * 5'  # Friday 10:00am IST — self-generated topic
+  # Sole scheduler. Runs pipeline.py directly on a GitHub-hosted runner —
+  # scrape/pick-topic/diagram/post/git-push are plain Python, no LLM involved.
+  # Only 3 Anthropic API calls happen per attempt (draft/humanize/quality-gate),
+  # so tokens are spent purely on content generation, never on orchestration.
+  # The Anthropic cloud routine (trig_01CdA8YWa1EAGbHtxVAi5KNx) and the local
+  # launchd plist both run the pipeline through Claude Code's agentic loop
+  # instead, which burns tokens on every mechanical step too — both are
+  # disabled in favor of this workflow. Do not re-enable either without
+  # disabling this cron first, to keep a single scheduler.
+  schedule:
+    - cron: '30 4 * * 1'  # Monday 10:00am IST (04:30 UTC) — GitHub repo topic
+    - cron: '30 4 * * 5'  # Friday 10:00am IST — self-generated topic
   workflow_dispatch:      # manual trigger
 
 jobs:

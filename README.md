@@ -18,7 +18,7 @@ Schedule trigger (Mon/Fri 10am IST)
   Picks unused niche angle — GitHub repos first, self-generated fallback
         │
         ▼
-  Post Generator (Claude Code)
+  Post Generator (Anthropic API, Haiku)
   Writes post: learning POV, 5-7yr DevOps practitioner voice, prose only
         │
         ▼
@@ -78,10 +78,21 @@ Schedule trigger (Mon/Fri 10am IST)
 |-------|-------|
 | Days | Monday, Friday |
 | Time | 10:00am IST (4:30am UTC) |
-| Routine ID | `trig_01CdA8YWa1EAGbHtxVAi5KNx` |
-| Manage | https://claude.ai/code/routines/trig_01CdA8YWa1EAGbHtxVAi5KNx |
+| Trigger | GitHub Actions cron, `.github/workflows/post.yml` |
+| Manage | https://github.com/adil-khan-723/linkedin-auto-posts/actions/workflows/post.yml |
 
-Runs fully in Anthropic's cloud. **Mac does not need to be on.**
+Runs on a GitHub-hosted runner via `pipeline.py`. **Mac does not need to be
+on, and no Claude Code tokens are spent on orchestration** — `pipeline.py`
+only calls the Anthropic API for the draft/humanize/quality-gate steps
+(3 calls per attempt, Haiku). Every other step (scrape, pick topic, diagram,
+post, archive, git push) is plain Python with no LLM involved.
+
+An Anthropic cloud routine (`trig_01CdA8YWa1EAGbHtxVAi5KNx`) and a local
+`launchd` job exist as alternatives that run the same pipeline through Claude
+Code's agentic loop instead (`prompts/agent_instructions.md`) — both are
+currently paused/disabled, since running the full mechanical pipeline through
+Claude Code burns tokens on steps that don't need an LLM at all, and having
+more than one scheduler live at once caused duplicate/irregular posts.
 
 ---
 
@@ -160,7 +171,10 @@ After any scheduled run, check `data/run_log.json` in this repo:
 
 ### Pausing / Stopping
 
-Visit https://claude.ai/code/routines/trig_01CdA8YWa1EAGbHtxVAi5KNx and toggle the routine off.
+Disable the cron in `.github/workflows/post.yml` (comment out or remove the
+`schedule:` block, keep `workflow_dispatch:` for manual runs) and push. Or
+disable the workflow without a code change: `gh workflow disable "LinkedIn
+Post Pipeline" --repo adil-khan-723/linkedin-auto-posts`.
 
 ---
 
