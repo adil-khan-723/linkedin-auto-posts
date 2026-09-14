@@ -1,13 +1,13 @@
 # LinkedIn Auto Posts
 
-Fully autonomous LinkedIn post scheduler. Runs 3x/week (Mon/Wed/Fri, 10am IST) with zero manual involvement. Posts niche DevOps content from a learning perspective, sourced from GitHub repos.
+Fully autonomous LinkedIn post scheduler. Runs 2x/week (Mon/Fri, 10am IST) with zero manual involvement. Posts niche DevOps content from a learning perspective, sourced from GitHub repos.
 
 ---
 
 ## How It Works
 
 ```
-Schedule trigger (Mon/Wed/Fri 10am IST)
+Schedule trigger (Mon/Fri 10am IST)
         │
         ▼
   GitHub Scraper
@@ -76,7 +76,7 @@ Schedule trigger (Mon/Wed/Fri 10am IST)
 
 | Field | Value |
 |-------|-------|
-| Days | Monday, Wednesday, Friday |
+| Days | Monday, Friday |
 | Time | 10:00am IST (4:30am UTC) |
 | Routine ID | `trig_01CdA8YWa1EAGbHtxVAi5KNx` |
 | Manage | https://claude.ai/code/routines/trig_01CdA8YWa1EAGbHtxVAi5KNx |

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Fully autonomous LinkedIn post scheduler. Posts DevOps content 3x/week (Mon/Wed/Fri 10am IST) with zero manual involvement. Pipeline runs on the user's Mac via `launchd` + `run_local.sh`, using Claude Code CLI headless mode to orchestrate each run.
+Fully autonomous LinkedIn post scheduler. Posts DevOps content 2x/week (Mon/Fri 10am IST) with zero manual involvement. Scheduled by an Anthropic cloud routine, which runs `prompts/agent_instructions.md` via Claude Code headless mode.
 
 ## How a Run Works
 
@@ -77,11 +77,10 @@ bash run_local.sh
 - Required scopes: `w_member_social`, `openid`, `profile`, `email`
 - Person ID cached in `data/.linkedin_person_id` (gitignored) — avoids API call each run
 
-### Schedule (Mac launchd)
-- Plist: `~/Library/LaunchAgents/com.linkedin.bot.plist`
-- Mac auto-wakes 9:55am IST via `pmset repeat wakeorpoweron MWF 09:55:00`
-- Mac must be in **sleep** (not shut down) on Sun/Tue/Thu nights for wake to trigger
-- Logs per run: `logs/run-<timestamp>.log`
+### Schedule (Anthropic cloud routine)
+- Runs fully in Anthropic's cloud — Mac does not need to be on. See README "Schedule" section for the routine ID/link.
+- Cadence: Mon/Fri 10am IST (2x/week).
+- The local `launchd` plist (`~/Library/LaunchAgents/com.linkedin.bot.plist`) and the `.github/workflows/post.yml` cron are both disabled — they used to fire independently alongside this routine, causing duplicate/irregular posts. Do not re-enable either without also updating the routine so there's only one active scheduler.
 
 ## Credentials (.env)
 
